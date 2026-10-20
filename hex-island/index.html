@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#172d3d">
+<meta name="description" content="六角形の島を開拓しよう。自分対CPU3人で楽しめる、オフライン対応の戦略ボードゲーム。">
+<meta name="application-name" content="六角島の開拓者">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="六角島の開拓者">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<title>六角島の開拓者 — Ver.8.14</title>
+<style>
+:root{--ink:#203242;--ocean:#9ad3d1;--sand:#f6edda;--paper:#fffaf0;--accent:#0c867b;--gold:#f0b441;--muted:#667482;--red:#dc6858}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;overflow:hidden}body{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;background:#e7edec;color:var(--ink)}button,select{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.35;cursor:default}#app{height:100dvh;max-width:620px;margin:auto;display:flex;flex-direction:column;overflow:hidden;background:#e6f0eb;box-shadow:0 0 35px #182e2433}
+.top{background:#172d3d;color:white;padding:calc(8px + env(safe-area-inset-top)) 12px 9px;display:flex;align-items:center;gap:9px;flex-shrink:0}.mark{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#ecd08c,#bb763e);display:grid;place-items:center;font-size:22px}.brand{min-width:0;flex:1}.brand b{font-size:15px;letter-spacing:.045em;display:block}.brand small{font-size:10px;color:#c0d4de}.top button{border:1px solid #547180;background:#294557;color:white;border-radius:9px;min-height:33px;padding:4px 9px;font-size:12px;font-weight:700}
+.players{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#fcf8ee;padding:7px 6px;gap:5px;flex-shrink:0;border-bottom:1px solid #e1d9c9}.player{min-width:0;border:2px solid transparent;border-radius:11px;text-align:center;padding:5px 2px 4px;position:relative;background:#eee9df}.player.active{border-color:#244e55;background:#fff}.player .pname{font-size:11px;font-weight:800;white-space:nowrap}.player .pscore{font-size:18px;line-height:1.4;font-weight:900;white-space:nowrap}.player .scorelabel{font-size:9px;color:#70808b}.player .rlen{font-size:10px;line-height:1.2;font-weight:700;color:#566d72}.player .extras{position:absolute;right:2px;top:1px;font-size:9px;letter-spacing:-2px}.player.you{background:#e5f3ef}.player{border:2px solid transparent;cursor:pointer;font-family:inherit;color:inherit;appearance:none}.player:focus-visible{outline:3px solid #e9ab43;outline-offset:1px}.player.active:before{content:"▼";color:#278879;position:absolute;top:-10px;left:calc(50% - 5px);font-size:10px}.port-label{font-size:8px;font-weight:900;fill:#294454;pointer-events:none}.port-ico{font-size:14px;pointer-events:none}.port-hit{cursor:pointer}.boardzone svg:focus-visible{outline:2px solid #e9b24e}.ready:not(.selected){border-color:#5caa92;background:#f2fff6} .hintline .harbor{font-weight:800;color:#0d796f}
+.status{background:#e5eee9;border-bottom:1px solid #cdded7;padding:5px 11px;display:flex;align-items:center;justify-content:space-between;gap:7px;min-height:39px;flex-shrink:0}.status .msg{min-width:0;flex:1;font-size:12px;line-height:1.25;font-weight:750}.dice{display:flex;gap:4px;flex-shrink:0}.die{background:white;color:#222;box-shadow:0 1px 3px #1c3e3e33;border-radius:7px;width:25px;height:25px;display:grid;place-items:center;font-size:20px;line-height:1}
+.boardzone{position:relative;min-height:0;flex:1;background:radial-gradient(ellipse at 55% 45%,#d0e9dd 0,#99cecc 80%);overflow:hidden;display:flex;align-items:center;justify-content:center}.boardzone:before{content:"";position:absolute;inset:8px;border:1px solid #ffffff44;border-radius:22px;pointer-events:none}.boardzone svg{width:100%;height:100%;max-height:100%;filter:drop-shadow(0 4px 4px #1b66573a);touch-action:manipulation}.boardfooter{position:absolute;right:9px;bottom:6px;font-size:10px;color:#37657499;pointer-events:none}.tile-num{font-size:20px;font-weight:950;fill:#273842;paint-order:stroke;stroke:#fff7ea;stroke-width:.8px}.tile-num.hot{fill:#ba4331}.tile-icon{font-size:25px;pointer-events:none}.tile-name{font-size:10px;font-weight:bold;fill:#1e3d41;opacity:.87;pointer-events:none}.hit{cursor:pointer}.hint{animation:glow 1.4s infinite ease-in-out}@keyframes glow{50%{opacity:.4}}.tile-robber{filter:drop-shadow(0px 2px 1px #3338)}
+.dock{background:#fffaf1;border-top:1px solid #d0d4c8;box-shadow:0 -4px 10px #152c2530;flex-shrink:0;padding:7px 9px calc(7px + env(safe-area-inset-bottom))}.wallet{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin-bottom:7px}.res{display:flex;align-items:center;justify-content:space-evenly;border:1px solid #ded5c5;background:#faf4e7;border-radius:9px;min-height:36px;padding:2px;gap:2px}.res .ico{font-size:18px}.res b{font-size:16px;font-variant-numeric:tabular-nums}.res small{display:none}.res.empty{opacity:.47}.hintline{font-size:11px;color:#5d6c73;display:flex;align-items:center;justify-content:space-between;min-height:19px;margin-bottom:4px;gap:8px;overflow:hidden}.hintline span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hintline button{border:0;background:none;color:#007e74;font-weight:800;padding:0 4px;white-space:nowrap;font-size:11px}.actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.action{border:1px solid #d8d4c8;border-radius:10px;background:#fff;min-height:39px;padding:5px 2px;color:#244050;font-size:12px;font-weight:800;line-height:1.2}.action.main{background:#0c877c;color:white;border-color:#0c877c}.action.selected{background:#e8b950;border-color:#b88b25;color:#49391f}.action .symbol{margin-right:2px;font-size:15px}.action.wide{grid-column:span 2}.action[hidden]{display:none}
+.scrim{position:fixed;inset:0;background:#0a1b26a8;display:flex;align-items:flex-end;justify-content:center;z-index:20;padding:10px}.scrim.hidden{display:none}.sheet{width:min(100%,600px);max-height:85dvh;overflow:auto;background:#fffaf0;border-radius:18px 18px 14px 14px;box-shadow:0 6px 32px #102e3999;padding:18px 17px calc(16px + env(safe-area-inset-bottom));animation:rise .16s ease-out}@keyframes rise{from{transform:translateY(18px);opacity:.6}}.sheet h2{font-size:20px;margin:0 0 8px}.sheet p{font-size:13px;line-height:1.6;margin:0 0 13px;color:#64707b}.sheet .sub{font-size:12px;color:#718080}.sheet .heading{display:flex;justify-content:space-between;align-items:center}.xclose{border:0;background:#eee4d4;width:28px;height:28px;border-radius:50%;font-size:19px}.sheetbtn{border:0;border-radius:10px;padding:12px 15px;background:#0b877b;color:white;font-weight:800;min-height:44px}.sheetbtn.secondary{background:#eae3d3;color:#334954}.sheetbtn:disabled{opacity:.3}.sheet .row{display:flex;align-items:center;gap:8px;margin:8px 0}.sheet select{flex:1;min-width:0;border:1px solid #dbd1bc;background:#fff;padding:10px 5px;border-radius:8px;font-size:14px}.pills{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:12px 0}.pill{border:1px solid #dacaa8;background:white;border-radius:10px;padding:9px 2px;font-size:13px;text-align:center}.pill:disabled{opacity:.3}.pill strong{display:block;font-size:18px}.pill.picked{outline:3px solid #efa933}.harborgrid{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}.harbor-chip{padding:6px 8px;border-radius:8px;background:#e8f2f0;color:#236457;border:1px solid #b8d3c8;font-size:12px;font-weight:800}.tourtip{font-size:11px;color:#52677a}.breakdown{display:grid;grid-template-columns:1fr auto;gap:7px 12px;border-radius:10px;background:#eef3ed;padding:12px;font-size:13px}.breakdown b{text-align:right}.warning{color:#a25933;font-size:12px}.sheetbtn.alt{background:#e7dbbb;color:#344653}.key{font-size:12px;min-width:56px;font-weight:800}.log{background:#edf3ef;border-radius:8px;padding:10px;font-size:12px;line-height:1.7;max-height:125px;overflow:auto;margin:10px 0}.toast{position:absolute;z-index:10;top:9px;left:50%;transform:translateX(-50%);background:#19343fe8;color:#fff;border:1px solid #ffffff66;border-radius:11px;padding:9px 12px;font-size:13px;font-weight:800;max-width:90%;min-width:150px;text-align:center;pointer-events:none;box-shadow:0 3px 10px #0004;animation:rise .2s ease-out}.hidden{display:none!important}
+@media(max-height:700px){.top{padding-top:5px;padding-bottom:5px}.mark{height:29px;width:29px}.players{padding:4px 6px}.player{padding:2px}.player .pscore{font-size:16px}.player .rlen{font-size:9px}.status{min-height:32px;padding-top:3px;padding-bottom:3px}.dock{padding-top:4px}.wallet{margin-bottom:3px}.res{min-height:30px}.actions .action{min-height:34px}.hintline{min-height:16px;margin:0}}
+@media(min-width:650px){#app{border-radius:0 0 16px 16px}}
+.brand small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}.trade-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0}.trade-col{padding:10px 8px;border:1px solid #e2d6bd;border-radius:12px;background:#fff}.trade-col.offer{background:#f0f8ee}.trade-col.request{background:#fff3ea}.trade-col h3{margin:0 0 3px;font-size:13px}.trade-col .micro{font-size:10px;color:#728087;min-height:27px;margin:0 0 6px}.trade-row{display:flex;align-items:center;justify-content:space-between;gap:2px;border-top:1px solid #e7e1d6;padding:5px 0;min-height:37px}.trade-row .rtitle{font-size:11px;min-width:0;white-space:nowrap}.trade-row .step{display:flex;gap:2px;align-items:center}.trade-row .step b{font-size:14px;min-width:16px;text-align:center}.stepbtn{width:27px;height:29px;border-radius:7px;border:1px solid #cfd1c5;background:#fff;font-size:19px;font-weight:700;padding:0;line-height:1}.trade-summary{margin:9px 0;padding:8px 10px;border-radius:9px;background:#eef1e9;font-size:12px;line-height:1.6}.trade-summary strong{color:#196d58}.difficulty-options{display:grid;gap:8px}.difficulty-options button{text-align:left;width:100%;background:white;border:2px solid #d4ddcf;border-radius:11px;padding:12px;font-size:13px}.difficulty-options button.active{border-color:#0c877c;background:#eaf9f3}.difficulty-options b{font-size:15px}.difficulty-options small{display:block;color:#718087;margin-top:4px}.trade-result{background:#f2e9dc;padding:10px;border-radius:9px;font-size:12px;line-height:1.5;margin:7px 0}
+@media(max-width:375px){.top{gap:4px;padding-left:7px;padding-right:7px}.top button{font-size:10px;padding:4px 6px}.trade-grid{gap:5px}.trade-col{padding:8px 5px}.trade-row .rtitle{font-size:10px}.stepbtn{width:23px}}
+
+/* Ver.6: small, optional, GPU-friendly feedback animations. */
+.top #settingsBtn{min-width:33px;padding:4px 6px;font-size:16px}
+.boardzone #fxLayer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;filter:none;overflow:visible}
+.dice.is-rolling .die{animation:diceBounce .13s ease-in-out infinite alternate}
+.dice.is-rolling .die:nth-child(2){animation-delay:.065s}
+@keyframes diceBounce{to{transform:translateY(-4px) rotate(8deg)}}
+.float-tag{animation:floatResource 1.1s ease-out forwards;transform-box:fill-box;transform-origin:center}
+@keyframes floatResource{0%{opacity:0;transform:translateY(13px) scale(.65)}18%{opacity:1;transform:translateY(0) scale(1.05)}75%{opacity:1}100%{opacity:0;transform:translateY(-24px) scale(1)}}
+.fx-road{stroke-dasharray:76;stroke-dashoffset:76;animation:paintRoad .64s cubic-bezier(.15,.75,.22,1) forwards}
+@keyframes paintRoad{75%{opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+.fx-ring{transform-box:fill-box;transform-origin:center;animation:buildRing .78s ease-out forwards}
+@keyframes buildRing{0%{opacity:1;transform:scale(.25)}100%{opacity:0;transform:scale(2.8)}}
+.fx-symbol{animation:buildSymbol .8s ease-out forwards;transform-box:fill-box;transform-origin:center}
+@keyframes buildSymbol{0%{opacity:0;transform:translateY(9px) scale(.6)}35%{opacity:1;transform:translateY(-7px) scale(1.25)}100%{opacity:0;transform:translateY(-19px) scale(1)}}
+.res.gain{animation:walletFlash .9s ease-out 1;border-color:#a1bd61}
+@keyframes walletFlash{0%{background:#dbf1b3;transform:scale(1.08)}100%{background:#faf4e7;transform:scale(1)}}
+.player .award-pop{position:absolute;left:50%;top:-16px;transform:translateX(-50%);border-radius:9px;padding:3px 7px;background:#f6d578;color:#634300;z-index:5;white-space:nowrap;font-weight:900;font-size:12px;box-shadow:0 3px 12px #0003;animation:floatAward 1.8s ease-out forwards;pointer-events:none}
+@keyframes floatAward{0%{opacity:0;transform:translate(-50%,8px)}20%{opacity:1}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-22px)}}
+.celebration{position:fixed;inset:0;z-index:25;pointer-events:none;overflow:hidden}
+.confetti{position:absolute;top:-10vh;width:9px;height:18px;border-radius:2px;opacity:0;animation:confettiDrop var(--time) cubic-bezier(.3,.45,.6,1) var(--delay) forwards}
+@keyframes confettiDrop{0%{opacity:0;transform:translate(0,-4vh) rotate(0deg)}10%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translate(var(--drift),115vh) rotate(var(--rotate))}}
+.setting-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;border:1px solid #d1dfd5;border-radius:12px;padding:13px 12px;background:#fff;margin:10px 0;text-align:left;font-size:14px;font-weight:700;color:#2a4348;min-height:50px}
+.setting-toggle .value{color:#fff;background:#178578;border-radius:18px;padding:5px 10px;min-width:64px;text-align:center;font-size:12px}
+.setting-toggle[aria-pressed="false"] .value{background:#9b9fa1}
+.victory-lead{text-align:center;font-size:16px;font-weight:800;color:#276d60}
+@media (prefers-reduced-motion:reduce){.dice.is-rolling .die,.float-tag,.fx-road,.fx-ring,.fx-symbol,.res.gain,.award-pop,.confetti{animation:none!important}}
+@media(max-width:375px){.top{gap:3px}.brand b{font-size:13px}.top #settingsBtn{min-width:27px;font-size:14px;padding:4px}}
+.order-full{width:100%;margin-top:12px}.order-description{font-size:12px;line-height:2;background:#edf4ee;border-radius:10px;padding:10px 12px;margin:11px 0;overflow-wrap:anywhere}.order-results{display:grid;gap:5px;margin:10px 0}.order-row{display:flex;align-items:center;gap:7px;padding:9px;border:1px solid #e6ddc8;border-radius:9px;background:white;font-size:13px}.order-row.human{background:#e8f7ed;border-color:#89bba4}.order-row b{min-width:30px}.order-row span:nth-child(2){flex:1;font-weight:800}.order-row .mini-dice{font-size:21px;color:#284b66;letter-spacing:1px}.order-row strong{min-width:23px;text-align:right;font-size:19px}.order-row small{font-size:9px;color:#5b7068}
+
+/* Ver.7 · colorful resource cards, crisp artwork, and readable port-access locations. */
+:root{--ocean:#89c7c9;--paper:#fffaf1}
+.boardzone{background:radial-gradient(ellipse at 48% 40%,#d4eadd 0%,#95cfcd 55%,#71afb7 100%)}
+.boardzone svg{filter:drop-shadow(0 2px 4px #286f6b36)}
+.tile-num{font-size:20px;stroke:#fffbed;stroke-width:1.5px;stroke-linejoin:round;paint-order:stroke}
+.tile-label{font-size:9px;font-weight:900;fill:#27484a;paint-order:stroke;stroke:#fff6df;stroke-width:1.7;stroke-linejoin:round}
+.port-rope{fill:none;stroke:#f2f9ef;stroke-width:5.5;stroke-linecap:round;opacity:.95}
+.port-rope-color{fill:none;stroke:#35798a;stroke-width:2;stroke-dasharray:3.5 3.5;stroke-linecap:round}
+.port-rope.is-selected{stroke:#ffe28a;stroke-width:9;opacity:1;filter:drop-shadow(0 0 4px #ffed93)}
+.port-rope-color.is-selected{stroke:#d17919;stroke-width:2.8;stroke-dasharray:5 3}
+.port-landing{fill:#fff9e7;stroke:#488e98;stroke-width:2.3;pointer-events:none}
+.port-landing.selected{fill:#ffe38b;stroke:#b8701b;stroke-width:3.5}
+.port-landing.ours{fill:#fdf0bd;stroke:#b17b23}
+.port-landing-label{font-size:12px;font-weight:900;fill:#7b4610;pointer-events:none;text-anchor:middle}
+.port-badge{cursor:pointer;filter:drop-shadow(0px 2px 2px #244f4d55)}
+.port-badge > rect:first-child{fill:#fffaf0;stroke:#377d8c;stroke-width:2}
+.port-badge.selected > rect:first-child{fill:#ffe2a1;stroke:#b4791d;stroke-width:2.8}
+.port-badge.owned > rect:first-child{fill:#f8f0b5;stroke:#b87920;stroke-width:2.4}
+.port-badge .symbol{font-size:13px;pointer-events:none}
+.port-badge .ratio{font-size:10px;font-weight:950;fill:#275262;pointer-events:none}
+.port-badge .port-tap{fill:transparent;stroke:transparent;cursor:pointer}
+.port-badge:focus{outline:none}
+.port-help{position:absolute;top:9px;right:10px;z-index:3;background:#fffaf3e8;color:#235c63;border:1.5px solid #4d999f;border-radius:18px;padding:7px 11px;font-size:11px;font-weight:900;box-shadow:0 2px 6px #25585b38}
+.port-help:focus-visible{outline:3px solid #e8aa36}
+.port-guide{position:absolute;z-index:4;left:8px;right:8px;bottom:25px;max-width:440px;margin:auto;border-radius:13px;border:2px solid #e2b259;background:#fff9eafa;box-shadow:0 6px 20px #234e5c48;padding:8px 37px 9px 11px;color:#274954;display:flex;flex-direction:column;gap:3px;font-size:12px;line-height:1.45;pointer-events:auto}
+.port-guide strong{font-size:13px}
+.port-guide .explain{color:#5b6570;font-size:11px}
+.port-guide .spot-status{font-size:11px;color:#754e12;font-weight:750}
+.port-guide button{position:absolute;right:8px;top:7px;border:0;background:#eaddc2;color:#3f5356;border-radius:50%;font-size:18px;width:27px;height:27px}
+.boardfooter{left:8px;right:unset;bottom:6px;color:#285d64;font-size:10px;font-weight:800;letter-spacing:0;text-shadow:0 1px 2px #fff}
+.wallet{gap:5px;margin-bottom:6px}
+.res{position:relative;display:grid;grid-template-columns:1fr auto;grid-template-rows:27px 18px;align-content:center;min-height:58px;gap:0 1px;padding:4px 7px;border-width:1.5px;border-radius:11px;box-shadow:inset 0 1px #fff7,0 2px 2px #24404015}
+.res .ico{grid-row:1;grid-column:1/3;font-size:25px;line-height:1;display:flex;align-items:center;justify-content:center}
+.res b{grid-column:2;grid-row:2;font-size:17px;font-variant-numeric:tabular-nums;text-align:right;line-height:1}
+.res small{display:block;grid-column:1;grid-row:2;font-size:10px;white-space:nowrap;font-weight:900;text-align:left;color:#49696a}
+.res.r-0{background:#e1f0d9;border-color:#95bb89}.res.r-1{background:#f9e1d2;border-color:#d6ac94}.res.r-2{background:#e6efce;border-color:#b8c891}.res.r-3{background:#fff0bc;border-color:#ddc377}.res.r-4{background:#dde9ef;border-color:#a9c1cc}
+.res.empty{opacity:.66}
+.action .cost{display:block;margin:2px auto 0;font-size:10px;font-weight:700;line-height:1.1;letter-spacing:-.06em;white-space:nowrap;color:#648083}
+.action.selected .cost{color:#694d1e}
+.action.ready .cost{color:#2d7163}
+.action.main{background:#0c877c}
+.action:not(.main){min-height:48px}
+@media(max-height:700px){.res{min-height:43px;grid-template-rows:21px 14px;padding:3px 4px}.res .ico{font-size:21px}.res b{font-size:15px}.res small{font-size:8px}.action:not(.main){min-height:41px}.action .cost{font-size:9px;margin-top:1px}.port-help{top:5px;right:5px;padding:5px 8px}.port-guide{bottom:20px;padding-top:6px;padding-bottom:6px}}
+@media(max-width:355px){.res{padding:3px 3px}.res .ico{font-size:21px}.res b{font-size:15px}.res small{font-size:8px}.action{font-size:11px}}
+
+
+/* Ver.7.3 — keep the board readable while showing what just happened. */
+.speed-chip{border:1px solid #75b1a3;background:#f0fff8;color:#175c52;border-radius:9px;padding:5px 6px;font-size:10px;line-height:1.2;font-weight:900;white-space:nowrap;min-height:28px;flex-shrink:0;min-width:52px}
+.speed-chip[aria-pressed="true"]{background:#165b6b;border-color:#165b6b;color:white}
+.production{flex-shrink:0;background:#ecf7ef;padding:4px 8px 5px;border-bottom:1px solid #b9d6c7;min-height:44px}
+.production-title{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:900;color:#215950;line-height:1.2;margin-bottom:3px}
+.production-title span{font-weight:600;color:#617b76;font-size:9px}
+.production-chips{display:flex;gap:5px;overflow-x:auto;scrollbar-width:thin;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.production-chip{white-space:nowrap;background:#fffaf3;border:1px solid #cadfd4;border-radius:7px;padding:3px 7px;font-size:11px;font-weight:850;line-height:1.2}
+.production-chip.mine{background:#fff3cc;border-color:#e6ce93}
+.cpu-notice{position:absolute;z-index:5;top:48px;left:8px;max-width:min(68%,280px);display:flex;align-items:center;gap:7px;border:1.5px solid #ffffffb9;background:#203e46ed;color:white;border-radius:12px;padding:8px 10px;font-size:12px;line-height:1.2;box-shadow:0 3px 12px #12394455;pointer-events:none}
+.cpu-notice b{font-weight:900}.cpu-notice small{display:block;color:#d0e6de;font-size:10px;line-height:1.3;margin-top:3px}
+.cpu-dot{display:inline-block;width:10px;height:10px;flex-shrink:0;border-radius:100%;box-shadow:0 0 0 2px #fff9}
+.cpu-spot-road,.cpu-spot-ring{pointer-events:none;stroke-dasharray:8 5;opacity:.95;filter:drop-shadow(0 0 4px white);animation:cpuHalo .65s infinite alternate ease-in-out}
+@keyframes cpuHalo{to{opacity:.4;stroke-width:12}}
+@media(prefers-reduced-motion:reduce){.cpu-spot-road,.cpu-spot-ring{animation:none}}
+@media(max-width:375px){.speed-chip{font-size:9px;min-width:45px;padding:4px 3px}.cpu-notice{font-size:11px;top:43px;max-width:68%}.production-chip{font-size:10px}}
+@media(max-height:670px){.production{min-height:38px;padding:2px 7px}.production-title{margin-bottom:1px}.production-chip{padding:2px 5px}.cpu-notice{top:37px;padding:6px 8px}}
+/* PWA install guidance inside settings */
+.pwa-panel{border-top:1px solid #d9dccf;margin-top:17px;padding-top:13px}
+.pwa-panel h3{font-size:15px;margin:0 0 7px;color:#1e4650}
+.pwa-help{font-size:12px;line-height:1.6;color:#546b76;margin:4px 0 8px}
+.pwa-install{display:block;width:100%;margin:8px 0}
+.pwa-installed{font-size:13px;color:#18725a;font-weight:800;padding:8px;background:#e8f6ee;border-radius:8px}
+
+/* Ver.8.1 — more readable own cards and always-visible public CPU information. */
+.players{padding:6px 5px;gap:4px}
+.player{display:flex;flex-direction:column;gap:2px;align-items:stretch;min-height:86px;padding:5px 4px 4px;border-radius:10px}
+.player .pname{font-size:10px;text-align:left;padding-left:1px;overflow:hidden;text-overflow:ellipsis}
+.player .pscore{font-size:20px;text-align:left;line-height:1.2;padding-left:1px}
+.player .scorelabel{font-size:9px}
+.player .player-hands{display:flex;gap:3px;align-items:center;justify-content:space-between;font-size:11px;line-height:1.1;font-weight:850;border-radius:5px;background:#ffffffb7;padding:3px 4px;color:#344e55}
+.player .player-hands span{white-space:nowrap}
+.player .player-assets{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:800;line-height:1.15;white-space:nowrap;color:#526c6b;padding:0 1px}
+.player .extras{font-size:10px}
+.player.active{box-shadow:inset 0 0 0 1px #2e7d77}
+.hand-heading{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px;min-height:26px}
+.hand-heading-title{min-width:0;display:flex;gap:7px;align-items:baseline;white-space:nowrap}
+.hand-heading-title strong{font-size:12px;color:#294a4e}
+.hand-heading-title span{font-size:11px;font-weight:750;color:#5b716e}
+.dev-shortcut{background:#f5eacc;border:1px solid #d7bd7c;color:#675022;border-radius:8px;font-size:11px;font-weight:900;min-height:27px;padding:4px 9px;white-space:nowrap}
+.dev-shortcut span{font-size:15px;margin-left:3px}
+.res{width:100%;font:inherit;color:var(--ink);cursor:pointer;appearance:none;text-align:left;transition:filter .15s}
+.res:focus-visible,.dev-shortcut:focus-visible{outline:3px solid #0c867b;outline-offset:2px}
+.res:active{filter:brightness(.92)}
+.res b{font-size:20px}
+.hand-modal-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:12px 0}
+.hand-big-card{min-width:0;text-align:center;border-radius:10px;padding:9px 2px;border:1.5px solid #dad6c8;background:#f6f4ed;display:flex;flex-direction:column;gap:3px;align-items:center}
+.hand-big-card.r-0{background:#e1f0d9;border-color:#95bb89}.hand-big-card.r-1{background:#f9e1d2;border-color:#d6ac94}.hand-big-card.r-2{background:#e6efce;border-color:#b8c891}.hand-big-card.r-3{background:#fff0bc;border-color:#ddc377}.hand-big-card.r-4{background:#dde9ef;border-color:#a9c1cc}
+.hand-big-ico{font-size:26px}.hand-big-name{font-size:11px;font-weight:850}.hand-big-card strong{font-size:25px;line-height:1}.hand-big-card small{font-size:10px;margin-left:1px}
+.hand-modal-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px;border-radius:11px;background:#f5efdc;margin:10px 0;font-size:12px;font-weight:750}
+.hand-modal-foot button{font-size:11px;padding:9px}
+.rival-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.rival-overview>div{border:1px solid #dce0d3;border-radius:10px;background:#f1f6ee;padding:10px}
+.rival-overview small{display:block;font-size:11px;color:#536b6a;font-weight:700}
+.rival-overview strong{display:block;margin-top:4px;font-size:25px;color:#244956}
+.rival-overview em{font-style:normal;font-size:11px;font-weight:700;color:#6b8080}
+.rival-pieces{font-size:12px!important;background:#f5f0e5;padding:9px;border-radius:9px;line-height:2!important}
+.rival-heading{font-size:14px;margin:15px 0 8px;color:#2d5156}
+.rival-hidden{padding:11px;border:1px dashed #bed1cc;border-radius:9px;background:#f4f8f6;font-size:12px;color:#49616b}
+.rival-resources{display:flex;gap:6px;flex-wrap:wrap}.rival-resources>span{background:#eff3e6;padding:6px 8px;border-radius:8px;font-size:12px}
+.rival-port{margin-top:12px!important;font-size:12px!important}
+@media(max-width:355px){.player{padding:5px 2px;min-height:80px}.player .pname{font-size:9px}.player .pscore{font-size:18px}.player .player-hands{font-size:10px;padding:2px}.player .player-assets{font-size:9px}.hand-heading-title{gap:4px}.hand-heading-title strong{font-size:11px}.hand-heading-title span{font-size:10px}.dev-shortcut{font-size:10px;padding:3px 5px}.hand-big-ico{font-size:21px}.hand-big-name{font-size:9px}}
+@media(max-height:700px){.player{min-height:72px;padding-top:2px;padding-bottom:2px;gap:0}.player .pscore{font-size:17px}.player .player-hands{padding:2px}.player .player-assets{font-size:9px}.hand-heading{min-height:23px;margin-bottom:3px}.res{min-height:41px}.res b{font-size:16px}}
+
+/* v8.2: full-screen development-card collection */
+.scrim.dev-screen{align-items:stretch;padding:0;background:#10252de8}
+.scrim.dev-screen .sheet{width:100%;max-width:none;max-height:100dvh;height:100dvh;border-radius:0;padding:calc(18px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));background:linear-gradient(155deg,#173f47,#244d4a 55%,#122f3a);color:#fff;animation:rise .2s ease-out}
+.scrim.dev-screen .sheet h2{color:#fff;font-size:22px}
+.scrim.dev-screen .xclose{background:#ffffff25;color:white;width:40px;height:40px;font-size:24px}
+.dev-intro{color:#d9e9dc!important;font-size:13px!important;margin:12px 0!important}
+.dev-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:5px 0 12px;max-width:660px;margin:auto}
+.dev-tile{position:relative;min-height:204px;border-radius:16px;border:2px solid #e4c98e;background:linear-gradient(160deg,#fff8e8,#e7d2a9);padding:14px 11px;box-shadow:0 6px 12px #0004;display:flex;flex-direction:column;align-items:center;color:#3b453e;text-align:center;gap:5px}
+.dev-tile.is-locked{filter:saturate(.32);opacity:.65;border-color:#b5c0b8}
+.dev-tile .dev-emoji{font-size:52px;line-height:1.15;margin:3px auto 6px}
+.dev-tile .dev-name{font-size:17px;font-weight:950;color:#3b4b3e}
+.dev-tile .dev-desc{font-size:11px;line-height:1.4;color:#4c5950;flex:1}
+.dev-tile .dev-state{font-size:10px;font-weight:800;color:#895d1d;min-height:15px}
+.dev-tile .dev-use{width:100%;font-size:14px;font-weight:900;border:0;border-radius:10px;background:#0d8172;color:white;padding:11px 5px;min-height:43px}
+.dev-tile .dev-use:disabled{background:#b4b9b0;color:#374c45;opacity:1}
+.dev-tile .dev-count{position:absolute;right:9px;top:9px;padding:4px 8px;border-radius:99px;background:#164e51;color:white;font-size:12px;font-weight:900}
+.dev-note{color:#ddebdc!important;text-align:center;font-size:11px!important;margin:4px auto!important;max-width:500px}
+.dev-empty{background:#ffffff18;border:1px dashed #ffffff80;border-radius:16px;padding:30px 15px;text-align:center;color:white}
+.dev-reveal{position:fixed;z-index:35;inset:0;background:#081c27df;display:flex;align-items:center;justify-content:center;pointer-events:auto;cursor:pointer;padding:24px;animation:devFlash .25s ease-out both}
+.dev-reveal-inner{background:linear-gradient(155deg,#fffae9,#dfc28a);border:4px solid #f6de9b;border-radius:23px;box-shadow:0 0 60px #f3cb60aa;width:min(310px,90vw);padding:40px 20px;text-align:center;transform:scale(1);animation:devBurst .68s ease both;color:#3b443b}
+.dev-reveal-inner .tap-dismiss{display:block;margin-top:20px;padding:12px;background:#22695e;color:white;border-radius:12px;font-size:15px;font-weight:800}.dev-reveal-inner .symbol{display:block;font-size:90px}.dev-reveal-inner b{display:block;font-size:28px;margin:12px 0}.dev-reveal-inner small{font-size:14px}
+@keyframes devFlash{from{opacity:0}to{opacity:1}}@keyframes devBurst{0%{transform:scale(.55) rotate(-7deg)}40%{transform:scale(1.07)}100%{transform:scale(1)}}
+@media(max-width:350px){.dev-grid{gap:8px}.dev-tile{min-height:185px;padding:9px 6px}.dev-tile .dev-emoji{font-size:40px}.dev-tile .dev-name{font-size:15px}.dev-tile .dev-desc{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.dev-reveal,.dev-reveal-inner{animation:none!important}}
+
+/* v8.5: visible title races, showing all players without revealing hidden cards */
+.award-standings{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:7px 9px 5px;background:#f3f1e8}
+.award-panel{background:#fffdf7;border:1px solid #ddd9c5;border-radius:12px;padding:7px;min-width:0}
+.award-heading{display:flex;flex-direction:column;gap:2px;margin-bottom:5px;min-height:39px}
+.award-heading strong{font-size:12px;color:#284b50}.award-heading>span{font-size:9px;color:#687476;line-height:1.3}
+.award-ranking{display:grid;gap:3px}
+.award-person{display:flex;align-items:center;gap:2px;min-width:0;padding:3px 4px;border-radius:7px;background:#f1f2ed;color:#384e4f}
+.award-person.award-top{background:#edf4e4}.award-person.award-holder{background:#fff0b9;outline:1px solid #d4ad45}
+.award-name{display:flex;align-items:center;gap:3px;flex:1;min-width:0;font-size:10px;white-space:nowrap;letter-spacing:-.25px}
+.award-name i{display:inline-block;flex:0 0 6px;width:6px;height:6px;border-radius:50%}
+.award-person b{font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}.award-person b small{font-size:9px;margin-left:1px}
+.award-rank{font-size:8px;color:#80632d;text-align:right;white-space:nowrap;min-width:23px}
+@media(max-width:365px){.award-standings{gap:5px;padding:5px}.award-panel{padding:5px}.award-name{font-size:9px}.award-person b{font-size:12px}.award-rank{font-size:7px;min-width:20px}.award-heading strong{font-size:11px}}
+
+/* v8.6: compact award crowns directly on player icons, no ranking table */
+.player .pname{display:flex;align-items:center;gap:3px;white-space:nowrap}
+.player-display-name{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.player-avatar{position:relative;flex:0 0 16px;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--avatar-color);color:transparent;border:2px solid #ffffff;box-shadow:0 0 0 1px #6c7676}
+.player-avatar.has-knight{box-shadow:0 0 0 3px #287bce}
+.player-avatar.has-road{border-color:#ffcc45;box-shadow:0 0 0 3px #d59305}
+.player-avatar.has-knight.has-road{border:3px solid #287bce;box-shadow:0 0 0 3px #d59305}
+.player .award-pills{display:flex;justify-content:space-between;gap:2px;min-width:0}
+.player .award-pill{padding:2px 3px;border:1px solid #deded7;border-radius:8px;font-size:10px;line-height:1.2;font-weight:850;background:#f7f7f3;color:#53646a;white-space:nowrap}
+.player .award-pill.knight-owned{background:#d7ecff;border:2px solid #287bce;color:#164b8b}
+.player .award-pill.road-owned{background:#fff0bd;border:2px solid #ca9107;color:#705000}
+@media(max-width:365px){.player .award-pill{font-size:9px;padding:2px 1px}.player-avatar{flex-basis:13px;width:13px;height:13px}.player .pname{gap:2px}}
+
+/* CPU選択: プレイヤーカラーを名前に反映 */
+.cpu-choice-row{display:flex;gap:7px;flex-wrap:wrap;margin:7px 0 13px}
+.cpu-choice{flex:1 1 85px;min-width:0;border:2px solid #cbd4d2;background:#fff;border-radius:10px;padding:10px 6px;font:inherit;font-size:13px;font-weight:900;cursor:pointer;min-height:46px}
+.cpu-choice.is-selected{border-color:var(--cpu-color);background:#edf5fa;box-shadow:inset 0 0 0 1px var(--cpu-color)}
+.cpu-choice-name{font-weight:950;color:var(--cpu-text);display:block}
+.cpu-choice small{display:block;font-size:10px;color:#56686e;font-weight:700;margin-top:2px}
+.victim-name{font-weight:950}
+
+/* Ver.8.8: dedicated title menu */
+.start-screen{position:fixed;inset:0;z-index:35;background:radial-gradient(circle at 50% 28%,#3b8e86 0%,#174c56 48%,#102b3a 100%);color:#fff;display:flex;justify-content:center;align-items:center;padding:20px 22px calc(28px + env(safe-area-inset-bottom));overflow-y:auto}
+.start-screen.hidden{display:none}
+.start-screen:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.15;background:repeating-linear-gradient(60deg,transparent 0 42px,#d5e6a8 43px 44px,transparent 45px 85px)}
+.start-content{position:relative;width:min(100%,390px);text-align:center;display:flex;align-items:stretch;flex-direction:column;gap:0}
+.start-kicker{font-size:10px;font-weight:850;letter-spacing:2.2px;color:#bbded1;margin-bottom:22px}
+.start-logo{display:flex;gap:0;justify-content:center;align-items:center;margin:0 auto 13px;width:166px;height:140px;position:relative;background:linear-gradient(145deg,#f6d68b,#c98e53);clip-path:polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);filter:drop-shadow(0 7px 5px #0005)}
+.start-logo span{font-size:35px;text-shadow:0 2px 1px #364c3b55}.start-logo span:nth-child(2){font-size:48px;transform:translateY(16px)}.start-logo span:nth-child(3){font-size:30px}
+.start-content h1{font-size:clamp(34px,10vw,44px);font-weight:950;letter-spacing:3px;line-height:1.3;margin:0;text-shadow:0 3px 0 #163747}
+.start-subtitle{color:#d9ebe2;font-size:13px;font-weight:650;margin:10px 0 27px}
+.start-actions{display:grid;gap:11px}
+.start-button{width:100%;min-height:57px;border:1.5px solid #accdc6;background:#f1f4e9;color:#24454a;border-radius:14px;padding:12px 16px;font-size:17px;font-weight:900;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 0 #051f2680;cursor:pointer}
+.start-button span{font-size:28px;line-height:1}.start-button.start-primary{background:linear-gradient(#f8d88c,#f0bd62);border-color:#ffe2a8;color:#4d3820}
+.start-button:disabled{opacity:.52;filter:grayscale(.6);cursor:not-allowed}.start-button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.start-save{min-height:35px;margin-top:14px;color:#dcebe5;font-size:12px;line-height:1.55}.start-foot{font-size:11px;color:#8fbdb6;margin-top:24px}
+.scrim{z-index:50}
+@media(max-height:640px){.start-screen{align-items:flex-start}.start-kicker{margin-bottom:8px}.start-logo{width:115px;height:98px;margin-bottom:5px}.start-logo span{font-size:26px}.start-logo span:nth-child(2){font-size:37px}.start-content h1{font-size:32px}.start-subtitle{margin:7px 0 13px}.start-button{min-height:46px;padding:8px 14px}.start-foot{margin-top:10px}}
+/* Ver.8.13: match records */
+.records-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 15px}.records-stat{background:#edf4ef;border:1px solid #c8dad0;border-radius:13px;padding:11px 5px;text-align:center}.records-stat b{font-size:23px;color:#176a64;display:block}.records-stat small{font-size:11px;color:#53696a}.records-item{background:#f6f4eb;border:1px solid #d6dcd3;border-radius:12px;padding:12px;margin:9px 0;line-height:1.7}.records-item .result{font-weight:900;color:#236a62}.records-item.loss .result{color:#855e61}.records-meta{color:#617477;font-size:12px}.records-players{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:9px;text-align:center;font-size:12px}.records-players span{background:#e9f0ef;border-radius:7px;padding:5px 1px}.records-empty{text-align:center;padding:25px 10px;color:#617477;line-height:1.8}
+/* Ver.8.9: title-screen difficulty selector */
+.start-difficulty{margin:8px 0 14px;color:#f5eacb;text-align:left;width:100%;}
+.start-difficulty-heading{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:13px;font-weight:800;margin:0 0 8px;}
+.start-difficulty-heading span{font-size:10px;color:#b9d6d1;font-weight:500;}
+.start-difficulty-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}
+.start-difficulty-options button{border:2px solid #80afa9;background:#224d56;color:#ecf6ee;border-radius:11px;padding:9px 3px 7px;font-weight:800;font-size:15px;min-height:56px;cursor:pointer;}
+.start-difficulty-options button small{display:block;font-size:10px;font-weight:500;margin-top:3px;color:#c5dcda;}
+.start-difficulty-options button[aria-pressed="true"]{background:#f0c982;color:#463719;border-color:#fff0be;box-shadow:0 0 0 2px #f0c98235;}
+.start-difficulty-options button[aria-pressed="true"] small{color:#625338;}
+
+/* Ver.8.13: two-row mobile header. No vertical title wrapping. */
+.top{display:flex;flex-direction:column;align-items:stretch;gap:7px;padding:8px 12px 9px}
+.top-identity{display:flex;align-items:center;gap:10px;min-width:0;min-height:39px}
+.top-identity .mark{flex-shrink:0;width:37px;height:37px}
+.top-identity .brand{flex:1;min-width:0}
+.top-identity .brand b{font-size:16px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:0}
+.top-identity .brand small{font-size:10px;line-height:1.3;white-space:nowrap}
+.top-identity #homeBtn{flex-shrink:0;min-width:78px;background:#365365}
+.top-menu{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;width:100%}
+.top-menu button{min-width:0;width:100%;white-space:nowrap;font-size:12px;min-height:36px;padding:5px 3px}
+@media(max-width:375px){.top{gap:6px;padding:7px 9px}.top-identity .brand b{font-size:15px}.top-menu{gap:5px}.top-menu button{font-size:11px;padding:4px 2px}.top-identity #homeBtn{font-size:12px;padding:5px 7px;min-width:75px}}
+@media(max-height:700px){.top{gap:4px;padding-top:4px;padding-bottom:5px}.top-identity{min-height:31px}.top-identity .mark{width:30px;height:30px}.top-menu button{min-height:30px}}
+</style>
+</head>
+<body><main id="app">
+<header class="top"><div class="top-identity"><div class="mark">⬡</div><div class="brand"><b>六角島の開拓者</b><small>HEX ISLAND · Ver.8.13</small></div><button id="homeBtn" aria-label="タイトル画面に戻る">⌂ ホーム</button></div><nav class="top-menu" aria-label="ゲームメニュー"><button id="levelBtn" aria-label="CPU難易度">🤖 標準</button><button id="settingsBtn" aria-label="演出とCPU速度の設定" title="音・アニメーション・CPU速度">⚙️ 設定</button><button id="rulesBtn">📖 ルール</button><button id="restartBtn">↻ 新規</button></nav></header>
+<section class="players" id="players"></section>
+<div class="status"><div class="msg" id="message">島を準備しています…</div><button type="button" id="cpuSpeedBtn" class="speed-chip" title="CPU手番の速度を切り替える">▶ 通常</button><div class="dice" id="dice"></div></div><section id="production" class="production hidden" aria-label="前回のサイコロで獲得した資源" aria-live="polite"></section>
+<section class="boardzone"><svg id="board" viewBox="-259 -239 518 478" aria-label="六角形のゲーム盤"></svg><svg id="fxLayer" viewBox="-259 -239 518 478" aria-hidden="true"></svg><div id="toast" class="toast hidden"></div><div id="cpuNotice" class="cpu-notice hidden" role="status" aria-live="polite"></div><button type="button" id="portHelpBtn" class="port-help">⚓ 港の建設位置</button><div class="port-guide hidden" id="portGuide"></div><div class="boardfooter">⚓ 港から伸びる2本の線の先に建設</div></section>
+<section class="dock"><div class="hand-heading"><div class="hand-heading-title"><strong>🎴 自分の手札</strong><span id="handSummary" aria-live="polite">資源 0枚</span></div><button type="button" id="handDevBtn" class="dev-shortcut">🃏 発展 0枚 <span aria-hidden="true">›</span></button></div><div id="wallet" class="wallet" aria-label="あなたの資源カード。タップで手札の詳細を確認できます"></div><div class="hintline"><span id="hint">資源を集めて島を開拓しよう</span><button id="historyBtn">履歴を見る</button></div><div class="actions" id="actions"></div></section></main>
+<div class="start-screen hidden" id="startScreen" role="dialog" aria-modal="true" aria-label="スタート画面">
+  <div class="start-content">
+    <div class="start-kicker">HEX ISLAND · SOLO BOARD GAME</div>
+    <div class="start-logo" aria-hidden="true"><span>🌲</span><span>🏠</span><span>⛵</span></div>
+    <h1>六角島の<br>開拓者</h1>
+    <p class="start-subtitle">サイコロが導く、新しい島の冒険。</p>
+    <div class="start-difficulty" role="group" aria-labelledby="startDifficultyLabel">
+      <div class="start-difficulty-heading" id="startDifficultyLabel">🤖 CPUの難易度 <span>新しい対戦に適用</span></div>
+      <div class="start-difficulty-options">
+        <button type="button" data-start-level="easy" aria-pressed="false">初級<small>気軽に</small></button>
+        <button type="button" data-start-level="normal" aria-pressed="true">標準<small>バランス</small></button>
+        <button type="button" data-start-level="hard" aria-pressed="false">上級<small>手強い</small></button>
+      </div>
+    </div>
+    <div class="start-actions">
+      <button id="startNew" class="start-button start-primary">🎲 最初から <span>›</span></button>
+      <button id="startContinue" class="start-button">▶ 続きから <span>›</span></button>
+      <button id="startOptions" class="start-button">⚙️ オプション <span>›</span></button>
+      <button id="startRecords" class="start-button">🏆 戦績を見る <span>›</span></button>
+    </div>
+    <div class="start-save" id="startSaveInfo"></div>
+    <div class="start-foot">あなた ＋ CPU 3人 · オフライン対応</div>
+  </div>
+</div>
+<div class="scrim hidden" id="scrim"><div class="sheet" id="sheet"></div></div><div id="celebration" class="celebration hidden" aria-hidden="true"></div>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), SVG='http://www.w3.org/2000/svg';
+const R=['木材','レンガ','羊毛','小麦','鉱石'], ICON=['🌲','🧱','🐑','🌾','⛰️'], COLORS=['#396c50','#b96951','#99b877','#e4c56d','#8a9ba0','#e9d8ae'], RC=['#4b895c','#ba6c50','#87a05b','#c3a65a','#6b8290'];
+const VERSION='8.13';
+const PLAYER_COLORS=['#e6a72e','#db657a','#597edf','#269a59'], NAMES=['あなた','CPU 1','CPU 2','CPU 3'];
+const CPU_TEXT_COLORS=['#8b6212','#b43b5b','#355fcb','#167342'];
+const COST={road:[1,1,0,0,0],settlement:[1,1,1,1,0],city:[0,0,0,2,3],dev:[0,0,1,1,1]};
+const NUMBERS=[2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12];
+const ODDS={2:1,3:2,4:3,5:4,6:5,8:5,9:4,10:3,11:2,12:1};
+let tiles=[],verts=[],edges=[],ports=[],state,modalType='',toastTimeout=null,cpuRunning=false,rolling=false;
+let audioContext=null,fxSequence=0,walletGains=[0,0,0,0,0],walletFlashUntil=0,awardMessages=[];
+// PWA: users can install the HTTPS-hosted app to their home screen.
+// Local HTML keeps working as a game, but cannot register a service worker.
+let installPromptEvent=null;
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+function installHelpMarkup(){
+ if(isStandalone())return '<div class="pwa-installed">✅ ホーム画面からアプリとして起動中</div>';
+ if(location.protocol==='file:')return '<p class="pwa-help">ホーム画面へのアプリ追加には、同梱ファイルをHTTPSで公開してからChromeで開いてください。ローカルのHTMLではインストールできません。</p>';
+ return (installPromptEvent?'<button class="sheetbtn pwa-install" id="installAppBtn">📲 ホーム画面に追加</button>':'')+
+   '<p class="pwa-help">AndroidのChromeで右上の「︙」→「アプリをインストール」または「ホーム画面に追加」を選んでください。ボタンが表示された場合は上のボタンからも追加できます。</p>';
+}
+function refreshInstallHelp(){const node=$('installHelp');if(node)node.innerHTML=installHelpMarkup()}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPromptEvent=e;refreshInstallHelp()});
+window.addEventListener('appinstalled',()=>{installPromptEvent=null;refreshInstallHelp();showToast('📲 ホーム画面に追加しました！')});
+async function installApp(){
+ if(!installPromptEvent){showToast('Chromeのメニューから「ホーム画面に追加」を選んでください',2600);return}
+ const e=installPromptEvent;installPromptEvent=null;
+ try{await e.prompt();await e.userChoice}catch(err){}
+ refreshInstallHelp();
+}
+if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1')){
+ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(err=>console.warn('Offline mode unavailable',err)));
+}
+
+let selectedPort=-1;
+// The last resource payout is saved with the game; transient CPU cues are not.
+let cpuCapture=false,cpuEvents=[],currentCpuEvent=null,cpuNoticeToken=0;
+function setCpuEvent(i,kind,target,initial=false){
+ const evt={i,kind,target,initial};
+ if(cpuCapture&&i!==0)cpuEvents.push(evt);
+ return evt;
+}
+function cpuDelay(normal=440,fast=75){return sleep(fxPrefs.cpuFast?fast:normal)}
+function formatGains(row){return row.map((n,k)=>n?ICON[k]+'+'+n:'').filter(Boolean).join(' ')}
+function reportSeven(){state.lastProduction={n:7,by:state.current,round:state.round,gains:null};}
+function renderProduction(){
+ const p=state.lastProduction,el=$('production');
+ if(!p){el.classList.add('hidden');el.innerHTML='';return;}
+ const chips=p.n===7?'<span class="production-chip">🦹 盗賊：資源の配布なし</span>':
+  p.gains.map((row,i)=>({i,txt:formatGains(row)})).filter(({i,txt})=>i===0||txt).map(({i,txt})=>`<span class="production-chip ${i===0?'mine':''}"><span style="color:${PLAYER_COLORS[i]}">●</span> ${NAMES[i]} ${txt||'獲得なし'}</span>`).join('')||'<span class="production-chip">資源の獲得なし</span>';
+ el.innerHTML=`<div class="production-title">🎲 ${p.n} の結果 <span>${p.round}ラウンド · ${NAMES[p.by]}</span></div><div class="production-chips" aria-label="各プレイヤーの獲得資源">${chips}</div>`;
+ el.classList.remove('hidden');
+}
+function renderCpuNotice(){
+ const box=$('cpuNotice');
+ if(!currentCpuEvent){box.classList.add('hidden');box.textContent='';return}
+ const e=currentCpuEvent;
+ const action=e.kind==='road'?'道を建設':e.kind==='city'?'都市に発展':e.kind==='settlement'?'開拓地を建設':'行動';
+ box.innerHTML=`<span class="cpu-dot" style="background:${PLAYER_COLORS[e.i]}"></span><span><b>${NAMES[e.i]}</b> ${action}${e.initial?'（初期配置）':''}<small>光る位置が今回の建設場所</small></span>`;
+ box.classList.remove('hidden');
+}
+function showCpuNotice(e){
+ currentCpuEvent=e;cpuNoticeToken++;renderBoard();renderCpuNotice();
+}
+function clearCpuNotice(delay=1400){
+ const token=++cpuNoticeToken;
+ setTimeout(()=>{if(token!==cpuNoticeToken)return;currentCpuEvent=null;renderBoard();renderCpuNotice()},delay);
+}
+async function replayCpuEvents(events){
+ if(!events.length){currentCpuEvent=null;renderCpuNotice();return}
+ // Limit repeated highlights so a highly productive CPU turn remains comfortable.
+ const builds=events.filter(e=>e.kind!=='dev');const show=[...events.filter(e=>e.kind==='dev'),...(builds.length>5?[...builds.slice(0,2),...builds.slice(-3)]:builds)];
+ for(const e of show){if(e.kind==='dev'){await showDevEffect(e.i,e.type);continue}showCpuNotice(e);await cpuDelay(540,75)}
+ clearCpuNotice(1250);
+}
+
+const reducedMotion=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function readFxPreferences(){try{const val=JSON.parse(localStorage.getItem('hexIslandFxV6')||'{}');return {sound:val.sound!==false,motion:val.motion!==false,devEffects:val.devEffects!==false,cpuFast:val.cpuFast===true}}catch(e){return {sound:true,motion:true,devEffects:true,cpuFast:false}}}
+let fxPrefs=readFxPreferences();
+function storeFxPreferences(){try{localStorage.setItem('hexIslandFxV6',JSON.stringify(fxPrefs))}catch(e){}}
+function canAnimate(){return fxPrefs.motion&&!reducedMotion}
+function unlockAudio(){if(!fxPrefs.sound)return;try{let C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!audioContext)audioContext=new C();if(audioContext.state==='suspended')audioContext.resume().catch(()=>{});}catch(e){}}
+function sound(kind){if(!fxPrefs.sound||!audioContext||audioContext.state!=='running')return;
+ const notes={dice:[[335,0,.06],[420,.07,.07]],resource:[[650,0,.06],[840,.07,.08]],road:[[330,0,.08],[450,.085,.1]],build:[[480,0,.09],[630,.09,.12]],trade:[[480,0,.07],[720,.085,.09]],award:[[520,0,.13],[780,.13,.17],[1050,.27,.18]],win:[[524,0,.11],[659,.13,.11],[784,.27,.12],[1047,.42,.38]]}[kind];if(!notes)return;
+ try{const start=audioContext.currentTime;notes.forEach(([frequency,delay,duration])=>{let oscillator=audioContext.createOscillator(),gain=audioContext.createGain(),t=start+delay;oscillator.type='sine';oscillator.frequency.setValueAtTime(frequency,t);gain.gain.setValueAtTime(.0001,t);gain.gain.exponentialRampToValueAtTime(.055,t+.018);gain.gain.exponentialRampToValueAtTime(.0001,t+duration);oscillator.connect(gain);gain.connect(audioContext.destination);oscillator.start(t);oscillator.stop(t+duration+.025)})}catch(e){}
+}
+function addVisual(markup,wait=1000){if(!canAnimate())return;const el=$('fxLayer');if(!el)return;const wrapper=document.createElementNS(SVG,'g');wrapper.innerHTML=markup;wrapper.dataset.effect=String(++fxSequence);el.appendChild(wrapper);setTimeout(()=>wrapper.remove(),wait)}
+function buildingFx(v,i,city=false){if(!canAnimate())return;const q=verts[v],color=PLAYER_COLORS[i];addVisual(`<g transform="translate(${q.x} ${q.y})"><circle class="fx-ring" cx="0" cy="0" r="13" fill="none" stroke="${color}" stroke-width="6"/><text class="fx-symbol" x="0" y="-15" text-anchor="middle" font-size="21">${city?'🏰':'🏠'}</text></g>`,850);sound('build')}
+function roadFx(e,i){const q=edges[e],a=verts[q.a],b=verts[q.b];addVisual(`<line class="fx-road" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${PLAYER_COLORS[i]}" stroke-width="12" stroke-linecap="round"/>`,740);sound('road')}
+function resourceFx(tileItems){if(!canAnimate())return;tileItems.slice(0,12).forEach(({id,type,count})=>{const t=tiles[id],txt=ICON[type]+' +'+count;addVisual(`<g transform="translate(${t.x} ${t.y-2})"><g class="float-tag"><rect x="-30" y="-15" width="60" height="27" rx="13" fill="#fffaf0" stroke="#38766c" stroke-width="1.3" opacity=".97"/><text x="0" y="3" font-size="15" font-weight="900" text-anchor="middle">${txt}</text></g></g>`,1150)});sound('resource')}
+function awardFx(i,label){sound('award');if(!canAnimate())return;setTimeout(()=>{const p=$('players').querySelector(`[data-player="${i}"]`);if(!p)return;const el=document.createElement('span');el.className='award-pop';el.textContent=label;p.appendChild(el);setTimeout(()=>el.remove(),1900)},30)}
+function confetti(){if(!canAnimate())return;const el=$('celebration');el.innerHTML='';el.classList.remove('hidden');const palette=['#f0b441','#0b8879','#cc6f80','#6186cf','#8d64a7'];for(let i=0;i<46;i++){const piece=document.createElement('span');piece.className='confetti';piece.style.left=((i*37.83)%100)+'%';piece.style.background=palette[i%palette.length];piece.style.setProperty('--time',(2.2+(i%7)*.24)+'s');piece.style.setProperty('--delay',((i%9)*.075)+'s');piece.style.setProperty('--drift',((i%2?1:-1)*(18+i%60))+'px');piece.style.setProperty('--rotate',(i%2?1:-1)*(360+i%5*130)+'deg');el.appendChild(piece)}setTimeout(()=>{el.innerHTML='';el.classList.add('hidden')},4900)}
+
+const rand=n=>Math.floor(Math.random()*n),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const shuffled=a=>{let b=[...a];for(let i=b.length-1;i>0;i--){let j=rand(i+1);[b[i],b[j]]=[b[j],b[i]]}return b};
+const toHex=(n)=>n.toString(16).padStart(2,'0');
+const fmt=(k)=>ICON[k]+' '+R[k];
+const player=i=>state.players[i];
+function makeBoard(){
+ tiles=[];verts=[];edges=[];ports=[];let vm=new Map(),em=new Map();let coords=[];
+ for(let r=-2;r<=2;r++)for(let q=-2;q<=2;q++)if(Math.abs(q+r)<=2)coords.push([q,r]);
+ coords.sort((a,b)=>a[1]-b[1]||a[0]-b[0]);
+ const S=46.5;
+ coords.forEach(([q,r],i)=>{
+  const x=Math.sqrt(3)*S*(q+r/2),y=1.5*S*r,vs=[];
+  for(let k=0;k<6;k++){let a=(Math.PI/180)*(60*k-90),vx=x+S*Math.cos(a),vy=y+S*Math.sin(a),key=Math.round(vx*100)+','+Math.round(vy*100);
+   if(!vm.has(key)){vm.set(key,verts.length);verts.push({id:verts.length,x:vx,y:vy,edges:[],neighbors:[],tiles:[]})}
+   let v=vm.get(key);vs.push(v);verts[v].tiles.push(i);
+  }
+  let es=[];
+  for(let k=0;k<6;k++){let a=vs[k],b=vs[(k+1)%6],key=[a,b].sort((u,v)=>u-v).join('-');
+   if(!em.has(key)){const eid=edges.length;em.set(key,eid);edges.push({id:eid,a,b,tiles:[]});verts[a].edges.push(eid);verts[b].edges.push(eid);verts[a].neighbors.push(b);verts[b].neighbors.push(a)}
+   let ei=em.get(key);es.push(ei);edges[ei].tiles.push(i);
+  }
+  tiles.push({id:i,q,r,x,y,vs,es,type:5,num:0});
+ });
+ let terrain=shuffled([0,0,0,0,1,1,1,2,2,2,2,3,3,3,3,4,4,4,5]);
+ tiles.forEach((t,i)=>t.type=terrain[i]);
+ for(let attempt=0;attempt<1000;attempt++){
+  let nums=shuffled(NUMBERS),j=0;
+  tiles.forEach(t=>t.num=t.type===5?0:nums[j++]);
+  let good=tiles.every(t=>![6,8].includes(t.num)||t.es.every(e=>edges[e].tiles.every(n=>n===t.id||![6,8].includes(tiles[n].num))));
+  if(good)break;
+ }
+ makePorts();
+}
+function makePorts(saved){
+ const coast=edges.filter(e=>e.tiles.length===1).map(e=>{
+  const a=verts[e.a],b=verts[e.b],cx=(a.x+b.x)/2,cy=(a.y+b.y)/2;
+  return {edge:e.id,theta:Math.atan2(cy,cx)};
+ }).sort((a,b)=>a.theta-b.theta);
+ const types=shuffled([-1,-1,-1,-1,0,1,2,3,4]);
+ const selected=saved?.length===9?saved:coast.filter((e,k)=>[0,3,7,10,13,17,20,23,27].includes(k)).map((e,j)=>[e.edge,types[j]]);
+ ports=selected.map(([edge,type],id)=>({id,edge,type}));
+}
+function ownedPorts(i){return ports.filter(port=>{let e=edges[port.edge];return state.ownerV[e.a]===i||state.ownerV[e.b]===i})}
+function rateFor(i,type){let mine=ownedPorts(i);if(mine.some(p=>p.type===type))return 2;if(mine.some(p=>p.type===-1))return 3;return 4}
+function portTitle(p){return p.type===-1?'万能港 3:1':R[p.type]+'港 2:1'}
+function portSummary(i){const have=ownedPorts(i);return have.length?have.map(portTitle).join('・'):'港なし（銀行 4:1）'}
+function newGame(difficultyOverride=null){const chosenDifficulty=['easy','normal','hard'].includes(difficultyOverride)?difficultyOverride:'normal';dismissDevReveals();if(victoryTimer!==null){clearTimeout(victoryTimer);victoryTimer=null}selectedPort=-1;currentCpuEvent=null;cpuNoticeToken++;cpuEvents=[];cpuCapture=false;makeBoard();state={gameId:generateGameId(),lastProduction:null,players:NAMES.map((name,id)=>({name,id,res:[0,0,0,0,0],dev:[],usedKnights:0,roads:0,settlements:0,cities:0,vpCards:0,playedDev:false})),ownerV:Array(verts.length).fill(-1),levelV:Array(verts.length).fill(0),ownerE:Array(edges.length).fill(-1),robber:tiles.findIndex(t=>t.type===5),setup:0,lastV:-1,current:0,phase:'order-roll',mode:null,dice:[1,1],round:1,log:[],longest:-1,army:-1,winner:-1,pendingFree:0,pendingRobber:false,difficulty:chosenDifficulty,turnOrder:[],setupOrder:[],orderRolls:[],turnIndex:0,cpuStage:'start',cpuStep:null};
+ initDeck();cpuRunning=false;rolling=false;$('fxLayer').innerHTML='';$('celebration').innerHTML='';$('celebration').classList.add('hidden');hideModal();log('🎲 サイコロで配置順を決めましょう！');save();render();showOrderRoll();}
+function save(){try{localStorage.setItem('hexIslandSaveV61',JSON.stringify({state,terrain:tiles.map(t=>[t.type,t.num]),ports:ports.map(p=>[p.edge,p.type])}))}catch(e){}}
+function load(resume=true){try{
+ const obj=JSON.parse(localStorage.getItem('hexIslandSaveV61'));
+ if(!obj||!obj.state||!Array.isArray(obj.terrain)||obj.terrain.length!==19)return false;
+ makeBoard();tiles.forEach((t,i)=>{[t.type,t.num]=obj.terrain[i]});makePorts(obj.ports);
+ state=obj.state;if(state.winner>=0&&!state.gameId){let hash=2166136261;for(let k=0;k<JSON.stringify(obj).length;k++){hash=Math.imul(hash^JSON.stringify(obj).charCodeAt(k),16777619)}state.gameId='legacy-'+(hash>>>0).toString(36)}if(state.winner>=0)recordFinishedGame();if(!['easy','normal','hard'].includes(state.difficulty))state.difficulty='normal';
+ if(!Array.isArray(state.players)||state.ownerV.length!==verts.length||state.ownerE.length!==edges.length)return false;
+ if(!Array.isArray(state.deck))initDeck();
+ if(!state.cpuStage)state.cpuStage='start';
+ if(!state.robberReturnPhase)state.robberReturnPhase='action';
+ updateAwards();
+ if(!resume)return true;
+ if(state.phase==='cpu')setTimeout(()=>runCpuTurns(),400);
+ else if(state.phase.startsWith('setup')&&state.setup<8&&state.current!==0)setTimeout(cpuSetup,450);
+ else if(state.phase==='order-roll')setTimeout(showOrderRoll,100);
+ else if(state.phase==='order-result')setTimeout(showOrderResult,100);
+ else if(state.phase==='choose-victim')setTimeout(showVictimChoices,150);
+ else if(state.phase==='human-discard')setTimeout(()=>discardHuman(()=>{state.phase='robber';state.pendingRobber=true;state.robberReturnPhase='action';save();render()}),150);
+ return true;
+ }catch(e){return false}}
+// Everyone rolls two dice. Tied scores are rerolled among tied players until all are distinct.
+// Placement is rank 1→4, then 4→1. Normal turns use the same first-to-fourth order.
+function rollForOrder(){
+ const throws=NAMES.map((_,id)=>({id,dice:[1+rand(6),1+rand(6)],rerolls:0}));
+ let collisions=0;
+ while(true){
+  const groups=new Map();
+  throws.forEach(t=>{const n=t.dice[0]+t.dice[1];if(!groups.has(n))groups.set(n,[]);groups.get(n).push(t)});
+  const tied=[...groups.values()].filter(group=>group.length>1);
+  if(!tied.length)break;
+  tied.flat().forEach(t=>{t.dice=[1+rand(6),1+rand(6)];t.rerolls++});
+  if(++collisions>=1000)throw new Error('順番決定のサイコロが終了しませんでした');
+ }
+ state.orderRolls=throws;
+ state.turnOrder=[...throws].sort((a,b)=>(b.dice[0]+b.dice[1])-(a.dice[0]+a.dice[1])).map(t=>t.id);
+ state.setupOrder=[...state.turnOrder,...[...state.turnOrder].reverse()];
+ state.phase='order-result';state.dice=[...throws.find(t=>t.id===0).dice];
+ log('🎲 配置順：'+state.turnOrder.map((id,i)=>`${i+1}位 ${NAMES[id]}`).join(' → '));
+ save();render();sound('dice');showOrderResult();
+}
+function showOrderRoll(){if(state.phase!=='order-roll')return;
+ openModal('🎲 配置順をサイコロで決めよう',`<p>あなたとCPU3人が<b>サイコロ2個</b>を振ります。合計が大きい順に1〜4位を決め、同点なら振り直します。</p><div class="order-description"><b>1回目：</b> 1位 → 2位 → 3位 → 4位<br><b>2回目：</b> 4位 → 3位 → 2位 → 1位<br><b>通常ターン：</b> 1位から順番に進みます</div><button class="sheetbtn order-full" id="rollOrder">🎲 4人のサイコロを振る</button>`,false);
+ $('rollOrder').onclick=()=>{unlockAudio();rollForOrder()};
+}
+function showOrderResult(){if(state.phase!=='order-result')return;
+ const rows=state.turnOrder.map((id,rank)=>{
+  const t=state.orderRolls.find(t=>t.id===id),dice=t?.dice||[1,1],n=dice[0]+dice[1];
+  return `<div class="order-row ${id===0?'human':''}"><b>${rank+1}位</b><span>${escapeText(NAMES[id])}</span><span class="mini-dice">${dice.map(v=>'⚀⚁⚂⚃⚄⚅'[v-1]).join(' ')}</span><strong>${n}</strong>${t?.rerolls?`<small>再${t.rerolls}回</small>`:''}</div>`;
+ }).join('');
+ openModal('🏅 サイコロの結果',`<p>順番が決まりました！ サイコロの合計が大きい人から配置します。</p><div class="order-results">${rows}</div><div class="order-description"><b>1回目：</b>${state.turnOrder.map(id=>NAMES[id]).join(' → ')}<br><b>2回目：</b>${[...state.turnOrder].reverse().map(id=>NAMES[id]).join(' → ')}</div><button class="sheetbtn order-full" id="beginSetup">🏝️ この順番で配置スタート</button>`,false);
+ $('beginSetup').onclick=()=>{
+  if(state.phase!=='order-result')return;hideModal();state.setup=0;state.current=state.setupOrder[0];state.phase='setup-settlement';
+  log('🏝️ 初期配置開始：'+NAMES[state.current]+'から');save();render();
+  if(state.current!==0)setTimeout(cpuSetup,420);
+ };
+}
+function turnOrderText(){return (state.turnOrder||[]).map((id,k)=>`${k+1}.${NAMES[id]}`).join(' → ')}
+function finishSetup(){
+ state.setup=8;state.lastV=-1;state.turnIndex=0;state.current=state.turnOrder[0];
+ state.phase=state.current===0?'roll':'cpu';state.mode=null;state.round=1;state.cpuStage='start';state.cpuStep=state.current;
+ log('🎲 初期配置完了。通常の手番順：'+turnOrderText());save();render();
+ if(state.current!==0)setTimeout(()=>runCpuTurns(),610);
+ else showToast('🎲 あなたの手番！');
+}
+function advanceTurn(){
+ state.turnIndex=(state.turnIndex+1)%4;
+ if(state.turnIndex===0)state.round++;
+ state.current=state.turnOrder[state.turnIndex];
+ state.phase=state.current===0?'roll':'cpu';state.cpuStage='start';state.cpuStep=state.current;
+ state.mode=null;state.dice=[1,1];
+ player(state.current).playedDev=false;
+ if(state.current===0)log('ラウンド '+state.round+'：あなたの手番');
+ save();render();
+ if(state.current===0)showToast('🎲 あなたの手番！',1300);
+}
+function log(s){state.log.unshift(s);state.log=state.log.slice(0,35)}
+function total(p){return p.res.reduce((a,b)=>a+b,0)}
+function canAfford(i,cost){return cost.every((x,j)=>player(i).res[j]>=x)}
+function pay(i,cost){cost.forEach((x,j)=>player(i).res[j]-=x)}
+function give(i,type,amount=1){if(type<5)player(i).res[type]+=amount}
+function nearbyOccupied(v){return verts[v].neighbors.some(n=>state.ownerV[n]>=0)}
+// Construction follows any of the player's existing roads, even a strand
+// disconnected by an opponent settlement. Enemy-owned vertices are blocked.
+function connectedVertices(i){
+ const visited=new Set(),stack=[];
+ for(const v of verts)if(state.ownerV[v.id]===i){visited.add(v.id);stack.push(v.id)}
+ while(stack.length){const v=stack.pop();
+  for(const e of verts[v].edges){if(state.ownerE[e]!==i)continue;
+   const next=edges[e].a===v?edges[e].b:edges[e].a;
+   if(state.ownerV[next]>=0&&state.ownerV[next]!==i)continue;
+   if(!visited.has(next)){visited.add(next);stack.push(next)}
+  }
+ }
+ return visited;
+}
+function connectsToOwnRoad(v,i){
+ return state.ownerV[v]===i||(state.ownerV[v]===-1&&verts[v].edges.some(e=>state.ownerE[e]===i));
+}
+function validSettlement(v,i,initial=false){
+ if(!Number.isInteger(v)||v<0||v>=verts.length||state.ownerV[v]>=0||nearbyOccupied(v)||player(i).settlements>=5)return false;
+ return initial||verts[v].edges.some(e=>state.ownerE[e]===i);
+}
+function validRoad(e,i,initial=false,from=-1){
+ if(!Number.isInteger(e)||e<0||e>=edges.length||state.ownerE[e]>=0||player(i).roads>=15)return false;
+ const {a,b}=edges[e];
+ if(initial)return from>=0&&state.ownerV[from]===i&&(a===from||b===from);
+ return connectsToOwnRoad(a,i)||connectsToOwnRoad(b,i);
+}
+function legalV(i,initial=false){return verts.filter(v=>validSettlement(v.id,i,initial)).map(v=>v.id)}
+function legalE(i,initial=false,from=-1){return edges.filter(e=>validRoad(e.id,i,initial,from)).map(e=>e.id)}
+function placeSettlement(v,i,initial=false){if(!validSettlement(v,i,initial))return false;if(!initial)pay(i,COST.settlement);state.ownerV[v]=i;state.levelV[v]=1;player(i).settlements++;
+ if(initial&&state.setup>=4)verts[v].tiles.forEach(t=>{if(tiles[t].type!==5)give(i,tiles[t].type)});
+ updateAwards();checkWinner();buildingFx(v,i,false);setCpuEvent(i,'settlement',v,initial);return true}
+function placeRoad(e,i,initial=false,free=false){if(!validRoad(e,i,initial,state.lastV))return false;if(!initial&&!free)pay(i,COST.road);state.ownerE[e]=i;player(i).roads++;updateAwards();checkWinner();roadFx(e,i);setCpuEvent(i,'road',e,initial);return true}
+function placeCity(v,i){if(state.ownerV[v]!==i||state.levelV[v]!==1||player(i).cities>=4||!canAfford(i,COST.city))return false;
+ pay(i,COST.city);state.levelV[v]=2;player(i).settlements--;player(i).cities++;updateAwards();checkWinner();buildingFx(v,i,true);setCpuEvent(i,'city',v);return true}
+function score(i,reveal=true){let p=player(i);
+ return p.settlements+2*p.cities+(reveal||i===0||state.winner>=0?p.vpCards:0)+(state.longest===i?2:0)+(state.army===i?2:0);
+}
+function pointBreakdown(i,publicOnly=false){let p=player(i);let parts=[['開拓地',p.settlements],['都市',2*p.cities],['最長交易路',state.longest===i?2:0],['最大騎士力',state.army===i?2:0]];
+ if(!publicOnly||i===0||state.winner>=0)parts.push(['勝利点カード',p.vpCards]);
+ return parts;
+}
+function roadLength(i){const owned=edges.filter(e=>state.ownerE[e.id]===i).map(e=>e.id);if(owned.length===0)return 0;
+ function dfs(v,used){let best=0;if(used.size>0&&state.ownerV[v]>=0&&state.ownerV[v]!==i)return 0;
+ for(const e of verts[v].edges){if(state.ownerE[e]!==i||used.has(e))continue;used.add(e);let other=edges[e].a===v?edges[e].b:edges[e].a;best=Math.max(best,1+dfs(other,used));used.delete(e)}return best}
+ return Math.max(...owned.flatMap(e=>[dfs(edges[e].a,new Set()),dfs(edges[e].b,new Set())]))}
+function updateAwards(){
+ const previousLongest=state.longest;
+ const lens=state.players.map((p,i)=>roadLength(i)),max=Math.max(...lens);
+ const candidates=lens.map((n,i)=>n===max?i:-1).filter(i=>i>=0);
+ // 5+ linked roads; branch roads count only one continuous non-repeated path.
+ // If the leader is tied, the previous holder keeps the 2 points.
+ if(max<5)state.longest=-1;
+ else if(candidates.length===1)state.longest=candidates[0];
+ else if(!candidates.includes(state.longest))state.longest=-1;
+ if(previousLongest!==state.longest){
+  if(state.longest>=0){log('🏅 '+NAMES[state.longest]+' が最長交易路（'+lens[state.longest]+'本）で＋2点！');awardFx(state.longest,'🏅 最長交易路 +2')} 
+  else if(previousLongest>=0)log('🏅 最長交易路の称号が保留になった');
+ }
+ let oldArmy=state.army;let knights=state.players.map(p=>p.usedKnights),m=Math.max(...knights),c=knights.map((n,i)=>n===m?i:-1).filter(i=>i>=0);
+ if(m<3)state.army=-1;else if(c.length===1)state.army=c[0];else if(!c.includes(state.army))state.army=-1;
+ if(state.army>=0&&state.army!==oldArmy)awardFx(state.army,'⚔️ 最大騎士力 +2');
+}
+const RECORDS_KEY='hexIslandRecordsV813';
+function generateGameId(){return 'game-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)}
+function readRecords(){try{const v=JSON.parse(localStorage.getItem(RECORDS_KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return []}}
+function recordFinishedGame(){
+ if(!state||state.winner<0)return;
+ if(!state.gameId)state.gameId=generateGameId();
+ const list=readRecords();if(list.some(r=>r.id===state.gameId))return;
+ const entry={id:state.gameId,date:new Date().toISOString(),winner:state.winner,points:state.players.map((p,i)=>score(i)),round:state.round||1,difficulty:state.difficulty||'normal',longest:state.longest,army:state.army,knights:state.players.map(p=>p.usedKnights),roads:state.players.map((p,i)=>roadLength(i))};
+ list.unshift(entry);try{localStorage.setItem(RECORDS_KEY,JSON.stringify(list))}catch(e){console.warn('戦績を保存できませんでした',e)}
+}
+function recordsModal(){
+ const rows=readRecords(),wins=rows.filter(r=>r.winner===0).length,pct=rows.length?Math.round(wins/rows.length*100):0;
+ const summary=`<div class="records-summary"><div class="records-stat"><b>${rows.length}</b><small>対戦数</small></div><div class="records-stat"><b>${wins}</b><small>勝利数</small></div><div class="records-stat"><b>${pct}%</b><small>勝率</small></div></div>`;
+ const history=rows.length?rows.map((r,i)=>{
+  let dt='日付不明';try{dt=new Date(r.date).toLocaleString('ja-JP',{year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}catch(e){}
+  const points=(Array.isArray(r.points)?r.points:[0,0,0,0]);const names=['あなた','CPU 1','CPU 2','CPU 3'];
+  const winnerName=names[r.winner]||'不明';
+  const diff={easy:'初級',normal:'標準',hard:'上級'}[r.difficulty]||'標準';
+  return `<div class="records-item ${r.winner===0?'':'loss'}"><div class="result">${r.winner===0?'🏆 勝利':'🔹 敗北'} · ${escapeText(winnerName)}が1位</div><div class="records-meta">${escapeText(dt)} · ${r.round||1}ラウンド · ${diff}</div><div class="records-players">${names.map((name,j)=>`<span style="border-top:3px solid ${PLAYER_COLORS[j]}">${escapeText(name)}<br><b>${Number(points[j])||0}点</b></span>`).join('')}</div></div>`;
+ }).join(''):'<div class="records-empty">まだ終了した対戦の戦績がありません。<br>次に10点で決着した試合から自動で記録されます。</div>';
+ openModal('🏆 これまでの戦績',`${summary}${history}<p class="sub">戦績はこのブラウザ内に保存されます。以前のバージョンで終了した試合は、自動的には復元できません。ブラウザのデータを消すと記録も消える場合があります。</p>`);
+}
+function checkWinner(){
+ if(state.winner>=0)return true;
+ const i=state.current;
+ if(!['action','roll','cpu','robber','choose-victim'].includes(state.phase)||score(i)<10)return false;
+ state.winner=i;state.phase='gameover';state.mode=null;log(NAMES[i]+' が10点に到達！');recordFinishedGame();save();render();scheduleVictory();return true;
+}
+let victoryTimer=null;
+function scheduleVictory(){
+ if(victoryTimer!==null)clearTimeout(victoryTimer);
+ victoryTimer=setTimeout(()=>{victoryTimer=null;if(state?.winner>=0){
+  // Never cover a card reveal that requires a tap. Show the result afterwards.
+  if(document.querySelector('.dev-reveal')){scheduleVictory();return}
+  winModal(state.winner);
+ }},180);
+}
+function buildCostText(kind){return COST[kind].map((v,i)=>v?ICON[i]+v:'').filter(Boolean).join(' ')}
+function phaseText(){if(state.winner>=0)return (state.winner===0?'🎉 勝利！':'🏁 '+NAMES[state.winner]+' の勝利');
+ if(state.phase==='order-roll')return '🎲 サイコロで初期配置の順番を決めよう';
+ if(state.phase==='order-result')return '🏅 配置順が決定！ 結果を確認しよう';
+ if(state.phase==='setup-settlement')return `初期配置 ${state.setup+1}/8（${state.turnOrder.indexOf(state.current)+1}位）：${NAMES[state.current]}、開拓地を置く`;
+ if(state.phase==='setup-road')return `初期配置 ${state.setup+1}/8：${NAMES[state.current]}、道を1本伸ばす`;
+ if(state.phase==='robber')return '🦹 盗賊を移動：別の地形をタップ';
+ if(state.phase==='choose-victim')return '🦹 資源を奪う相手を選んでください';
+ if(state.phase==='human-discard')return '🦹 資源を半分捨ててください';
+ if(state.current!==0||cpuRunning)return `🤖 ${NAMES[state.current]} が行動中…`;
+ if(rolling)return '🎲 サイコロを振っています…';
+ if(state.phase==='roll')return `ラウンド ${state.round}：サイコロを振ろう`;
+ if(state.mode==='road'||state.mode==='road-free')return '🛤️ 自分の建物・道につながる光る辺を選択';
+ if(state.mode==='settlement')return '🏠 光る交点をタップして開拓地を建設';
+ if(state.mode==='city')return '🏰 自分の開拓地をタップして都市に';
+ return `ラウンド ${state.round}：建設・交易をして次の手番へ`}
+function render(){if(!state)return;renderPlayers();renderWallet();renderBoard();renderProduction();renderCpuNotice();renderActions();$('cpuSpeedBtn').textContent=fxPrefs.cpuFast?'⏩ 高速':'▶ 通常';$('cpuSpeedBtn').setAttribute('aria-pressed',String(fxPrefs.cpuFast));$('message').textContent=phaseText();$('levelBtn').textContent='🤖 '+({easy:'初級',normal:'標準',hard:'上級'}[state.difficulty]||'標準');$('dice').innerHTML=state.dice.map(v=>`<span class="die">${['⚀','⚁','⚂','⚃','⚄','⚅'][v-1]}</span>`).join('');}
+function visibleDevCount(i){return player(i).dev.filter(c=>!c.used).length}
+function renderPlayers(){$('players').innerHTML=state.players.map((p,i)=>{
+ const resources=total(p),devs=visibleDevCount(i),road=roadLength(i),points=score(i,state.winner>=0);
+ const knightHolder=state.army===i,roadHolder=state.longest===i;
+ const label=`${p.name}、公開勝利点${points}点、資源${resources}枚、発展カード${devs}枚、開拓地${p.settlements}、都市${p.cities}、最長の道${road}本、使用済み騎士${p.usedKnights}枚。${knightHolder?'最大騎士力を保持、2点獲得。':''}${roadHolder?'最長交易路を保持、2点獲得。':''}詳細を見る`;
+ return `<button type="button" data-player="${i}" aria-label="${label}" class="player ${i===state.current?'active':''} ${i===0?'you':''}"><div class="pname" style="color:${PLAYER_COLORS[i]==='#e6a72e'?'#8b6212':PLAYER_COLORS[i]}"><span class="player-avatar ${knightHolder?'has-knight':''} ${roadHolder?'has-road':''}" style="--avatar-color:${PLAYER_COLORS[i]}" aria-hidden="true">●</span><span class="player-display-name">${p.name}</span></div><div class="award-pills" aria-label="称号"><span class="award-pill ${knightHolder?'knight-owned':''}" title="最大騎士力：${p.usedKnights}枚${knightHolder?'・称号保持 ＋2点':''}">⚔️${p.usedKnights}${knightHolder?' 👑':''}</span><span class="award-pill ${roadHolder?'road-owned':''}" title="最長交易路：${road}本${roadHolder?'・称号保持 ＋2点':''}">🛤${road}${roadHolder?' 👑':''}</span></div><div class="pscore">${points}<span class="scorelabel"> / 10点</span></div><div class="player-hands"><span title="資源カード合計（種類は非公開）">🎒${resources}</span><span title="発展カード（未使用・非公開）">🃏${devs}</span></div><div class="player-assets"><span title="開拓地">🏠${p.settlements}</span><span title="都市">🏰${p.cities}</span><span title="最長の連続道">🛤${road}</span><span title="使用済み騎士">⚔️${p.usedKnights}</span></div></button>`;
+ }).join('')}
+function renderWallet(){
+ const mine=player(0),unplayed=visibleDevCount(0);
+ $('handSummary').textContent=`資源 ${total(mine)}枚`;
+ $('handDevBtn').innerHTML=`🃏 発展 ${unplayed}枚 <span aria-hidden="true">›</span>`;
+ $('handDevBtn').setAttribute('aria-label',`発展カード${unplayed}枚を見る`);
+ $('wallet').innerHTML=R.map((name,i)=>`<button type="button" class="res r-${i} ${mine.res[i]===0?'empty':''} ${walletFlashUntil>Date.now()&&walletGains[i]>0?'gain':''}" aria-label="${name} ${mine.res[i]}枚。自分の手札の詳細を表示" title="${name}：${mine.res[i]}枚。タップで手札の詳細"><span class="ico">${ICON[i]}</span><small>${name}</small><b>${mine.res[i]}</b></button>`).join('');
+ let h='';if(state.phase==='order-roll'||state.phase==='order-result')h='🎲 配置順を決めて開拓を始めよう';else if(state.phase.startsWith('setup'))h=`💡 ${state.setup<4?'1巡目':'2巡目（逆順）'}：⚓の線の先に建てると港を獲得`;else if(state.phase==='action'&&state.current===0){h=state.mode==='road'||state.mode==='road-free'?`🛤️ 自分の道を延長 · 最長${roadLength(0)}本（5本以上で＋2点）`:`⚓ ${ownedPorts(0).length?'利用中：'+ownedPorts(0).map(p=>p.type<0?'万能3:1':R[p.type]+'2:1').join(' / '):'港マークから2本の線の先に拠点を建設'} · 🃏 ${player(0).dev.length}枚`;}else h='🏆 先に10点集めた人が勝ち！';$('hint').textContent=h;
+}
+function hasPlayableDev(i){return !player(i).playedDev&&player(i).dev.some(c=>!c.used&&c.type!=='vp'&&c.turn<state.round)}
+function renderActions(){let acts=[];
+ const human=state.current===0&&!cpuRunning&&state.winner<0;
+ if(state.winner>=0||state.phase==='gameover')acts=[['result','🏆 対戦結果を見る','main wide',false],['history','📝 履歴','',false],['rules','📖 ルール','',false]];
+ else if(state.phase==='order-roll'||state.phase==='order-result')acts=[['','🎲 サイコロで順番を決定','main wide',true],['rules','📖 ルール','',false],['history','📝 履歴','',false]];
+ else if(state.phase==='setup-settlement'||state.phase==='setup-road')acts=[['','📍 盤面をタップ','main wide',false],['rules','📖 ルール','',false],['history','📝 履歴','',false]];
+ else if(state.phase==='robber'||state.phase==='choose-victim'||state.phase==='human-discard')acts=[['','🦹 盗賊の処理中','main wide',true],['history','履歴','',false],['rules','ルール','',false]];
+ else if(state.phase==='roll'){
+  if(state.mode==='road-free')acts=[['','🛤️ 無料の道を配置','main wide',true],['cancel','配置を終える','',!human],['history','📝 履歴','',false]];
+  else acts=[['roll','🎲 サイコロを振る','main wide',!human],['cards','✨ カード使用','',!human||!hasPlayableDev(0)],['history','📝 履歴','',false]];
+ }else if(state.phase==='action'){
+  if(state.mode==='road-free')acts=[['','🛤️ 無料の道を配置','main wide',true],['cancel','配置を終える','',!human],['history','📝 履歴','',false]];
+  else acts=[['road','🛤️ 道','',!human||!canAfford(0,COST.road)||legalE(0).length===0],['settlement','🏠 開拓地','',!human||!canAfford(0,COST.settlement)||legalV(0).length===0],['city','🏰 都市','',!human||!canAfford(0,COST.city)||!verts.some(v=>state.ownerV[v.id]===0&&state.levelV[v.id]===1)||player(0).cities>=4],['trade','🤝 交易','',!human],['dev','🃏 発展購入','',!human||!canAfford(0,COST.dev)||state.deck?.length===0],['cards','✨ カード使用','',!human||!hasPlayableDev(0)],['cancel','✖ 選択解除','',!state.mode],['end','手番終了 ➜','main',!human]];
+ }else acts=[['','🤖 CPUが考えています','main wide',true],['history','📝 履歴','',false],['rules','📖 ルール','',false]];
+ $('actions').innerHTML=acts.map(([id,label,cls,disabled])=>`<button class="action ${cls} ${state.mode===id?'selected':''} ${['road','settlement','city','dev'].includes(id)&&!disabled?'ready':''}" data-act="${id}" title="${COST[id]?buildCostText(id):label}" ${disabled?'disabled':''}>${label}${COST[id]?`<small class="cost">${buildCostText(id)}</small>`:''}</button>`).join('');
+}
+const escapeText=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+// Vector illustrations stay crisp on small phones and work fully offline.
+function terrainArt(t){
+ const x=t.x,y=t.y-18;
+ const pine=(x,y,scale)=>`<g transform="translate(${x} ${y}) scale(${scale})"><path d="M0 -15 L-10 0 H-6 L-12 9 H12 L6 0 H10Z" fill="#286c50" stroke="#e3f0c1" stroke-width=".8"/><path d="M0 3V15" stroke="#765b3d" stroke-width="3.5"/></g>`;
+ const brick=(x,y)=>`<g transform="translate(${x} ${y})"><path d="M-13 -5L-5 -15L2 -7L9 -12L15 -3V11H-13Z" fill="#b86a50" stroke="#894f42" stroke-width="1.8"/><path d="M-12 1H13M-12 7H13M-1 -5V1M-5 1V7M5 7V11" fill="none" stroke="#f3c4a3" stroke-width="1.8"/></g>`;
+ const sheep=(x,y)=>`<g transform="translate(${x} ${y})"><ellipse cx="-3" cy="2" rx="12" ry="9" fill="#fefcf0" stroke="#87ab8a" stroke-width="1.5"/><circle cx="-10" cy="-4" r="5.5" fill="#fffefa"/><circle cx="-2" cy="-7" r="6" fill="#f8f7ee"/><circle cx="6" cy="-5" r="5.5" fill="#fffefa"/><circle cx="11" cy="3" r="5.8" fill="#555f52"/><circle cx="13" cy="2" r="1" fill="white"/><path d="M-9 8v6M2 8v6" stroke="#526252" stroke-width="2"/></g>`;
+ const wheat=(x,y)=>`<g transform="translate(${x} ${y})" fill="none" stroke="#9c7927" stroke-linecap="round"><path d="M0 16V-11M-8 13L-10 -4M9 13L11 -4" stroke-width="1.6"/><g fill="#f0be45" stroke="#ad8425" stroke-width=".6"><ellipse cx="-3" cy="-9" rx="3" ry="6" transform="rotate(-25 -3 -9)"/><ellipse cx="4" cy="-7" rx="3" ry="6" transform="rotate(25 4 -7)"/><ellipse cx="-5" cy="0" rx="3" ry="5" transform="rotate(-37 -5 0)"/><ellipse cx="4" cy="3" rx="3" ry="5" transform="rotate(37 4 3)"/><ellipse cx="-10" cy="-4" rx="2.8" ry="5"/><ellipse cx="11" cy="-4" rx="2.8" ry="5"/></g></g>`;
+ const mountain=(x,y)=>`<g transform="translate(${x} ${y})"><path d="M-17 13L-5 -13L3 0L10 -12L20 13Z" fill="#778f98" stroke="#5a7a85" stroke-width="1.4"/><path d="M-5 -13L-10 -2L-5 -5L-1 0L2 -2Z M10 -12L4 1L10 -3L14 1Z" fill="#f4f8f1"/></g>`;
+ const dunes=(x,y)=>`<g transform="translate(${x} ${y})"><path d="M-20 8Q-9 -2 0 7Q8 -7 20 4" stroke="#bd9e67" stroke-width="3" fill="none"/><circle cx="9" cy="-8" r="7" fill="#f0c776"/></g>`;
+ const shapes=[()=>pine(x-9,y+1,.73)+pine(x+8,y-2,.98),()=>brick(x,y),()=>sheep(x,y),()=>wheat(x,y),()=>mountain(x,y),()=>dunes(x,y)];
+ return shapes[t.type]();
+}
+function portCoords(port){
+ const edge=edges[port.edge],a=verts[edge.a],b=verts[edge.b],t=tiles[edge.tiles[0]];
+ const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,dx=mx-t.x,dy=my-t.y,len=Math.hypot(dx,dy)||1;
+ return {x:mx+dx/len*27,y:my+dy/len*27,a,b,edge};
+}
+function renderPortGuide(){
+ const guide=$('portGuide');if(selectedPort<0||!ports[selectedPort]){guide.classList.add('hidden');guide.innerHTML='';return}
+ const p=ports[selectedPort],edge=edges[p.edge],endpoints=[edge.a,edge.b];
+ const statuses=endpoints.map((v,i)=>{
+  const owner=state.ownerV[v];
+  const who=owner===0?'あなたの拠点（利用中 ✅）':owner>=0?`${NAMES[owner]}の拠点`:
+   nearbyOccupied(v)?'建設不可（隣の建物に近い）':
+   state.phase==='setup-settlement'&&state.current===0?'初期配置で建設可能':
+   validSettlement(v,0)?'開拓地を建設可能':'空き（自分の道を伸ばせば建設可）';
+  return `${i?'②':'①'} ${who}`;
+ });
+ guide.innerHTML=`<strong>⚓ ${portTitle(p)} ─ 利用できる建設位置</strong><span class="explain">盤面の<b>金色の①・②</b>のどちらかに自分の開拓地・都市を建てると、この港が使えます。</span><span class="spot-status">${statuses.join('　｜　')}</span><button type="button" id="closePortGuide" aria-label="港ガイドを閉じる">×</button>`;
+ guide.classList.remove('hidden');
+ $('closePortGuide').onclick=()=>{selectedPort=-1;renderBoard()};
+}
+function renderBoard(){
+ let s=`<defs>
+ <linearGradient id="hexSea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f5ebbb"/><stop offset="1" stop-color="#d2e3b2"/></linearGradient>
+ <linearGradient id="tileLit" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#ffffff" stop-opacity=".25"/><stop offset=".85" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ </defs>`;
+ const paths=tiles.map(t=>t.vs.map(v=>`${verts[v].x.toFixed(1)},${verts[v].y.toFixed(1)}`).join(' '));
+ s+=`<circle cx="0" cy="0" r="209" fill="url(#hexSea)" opacity=".45"/>`;
+ const fills=['#75ab78','#dba07a','#accc86','#efd38b','#acbec4','#e4c99c'];
+ const outlines=['#548966','#bd7860','#88ad67','#c7a75c','#8da3ac','#c6ab81'];
+ tiles.forEach((t,i)=>{
+  s+=`<polygon points="${paths[i]}" fill="${fills[t.type]}" stroke="#fff0d6" stroke-width="4" stroke-linejoin="round"/>`;
+  s+=`<polygon points="${paths[i]}" fill="url(#tileLit)" stroke="${outlines[t.type]}" stroke-width="1.5" stroke-linejoin="round"/>`;
+  s+=`<text x="${t.x}" y="${t.y-33}" text-anchor="middle" class="tile-label">${['森','丘陵','牧草','畑','山地','砂漠'][t.type]}</text>`;
+  s+=terrainArt(t);
+  if(t.type!==5){
+   s+=`<circle cx="${t.x}" cy="${t.y+15}" r="17" fill="#fff9df" stroke="#e1bc7b" stroke-width="2.3"/>`;
+   s+=`<text class="tile-num ${[6,8].includes(t.num)?'hot':''}" x="${t.x}" y="${t.y+22}" text-anchor="middle">${t.num}</text>`;
+   s+=`<text x="${t.x}" y="${t.y+36}" text-anchor="middle" font-size="7" font-weight="800" fill="#8b745c">${'•'.repeat(ODDS[t.num]||0)}</text>`;
+  }
+  if(state.robber===i)s+=`<g class="tile-robber"><circle cx="${t.x+29}" cy="${t.y-24}" r="13" fill="#273941" stroke="#fff0d0" stroke-width="2"/><text x="${t.x+29}" y="${t.y-19}" text-anchor="middle" font-size="15">🦹</text></g>`;
+  s+=`<polygon data-tile="${i}" class="hit" points="${paths[i]}" fill="transparent"/>`;
+  if(state.phase==='robber'&&state.current===0&&i!==state.robber)s+=`<polygon data-tile="${i}" class="hit hint" points="${paths[i]}" fill="#fff0a0" fill-opacity=".34" stroke="#fff" stroke-width="2"/>`;
+ });
+ // Draw paired harbor mooring ropes BEHIND roads/houses so the two eligible corners are unambiguous.
+ ports.forEach(p=>{
+  const {x,y,a,b}=portCoords(p),isSelected=selectedPort===p.id;
+  for(const v of [a,b]){
+   const path=`M${x.toFixed(1)} ${y.toFixed(1)} L${v.x.toFixed(1)} ${v.y.toFixed(1)}`;
+   s+=`<path d="${path}" class="port-rope ${isSelected?'is-selected':''}"/><path d="${path}" class="port-rope-color ${isSelected?'is-selected':''}"/>`;
+  }
+ });
+ let eligibleE=[];if(state.current===0){if(state.phase==='setup-road')eligibleE=legalE(0,true,state.lastV);else if(['action','roll'].includes(state.phase)&&['road','road-free'].includes(state.mode))eligibleE=legalE(0)}
+ edges.forEach(e=>{
+  let a=verts[e.a],b=verts[e.b],owner=state.ownerE[e.id];
+  if(owner>=0)s+=`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#2b3844" stroke-width="11" stroke-linecap="round"/><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${PLAYER_COLORS[owner]}" stroke-width="7" stroke-linecap="round"/>`;
+  else if(eligibleE.includes(e.id))s+=`<line class="hint" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#fff5ae" stroke-width="9" stroke-linecap="round"/>`;
+  if(eligibleE.includes(e.id))s+=`<line class="hit" data-edge="${e.id}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="transparent" stroke-width="21" stroke-linecap="round"/><circle class="hit" data-edge="${e.id}" cx="${(a.x+b.x)/2}" cy="${(a.y+b.y)/2}" r="12" fill="#ffffff01"/>`;
+ });
+ const harborVerts=new Map();ports.forEach(p=>{const e=edges[p.edge];for(const v of [e.a,e.b])harborVerts.set(v,true)});
+ let eligibleV=[];if(state.current===0){if(state.phase==='setup-settlement')eligibleV=legalV(0,true);else if(state.phase==='action'&&state.mode==='settlement')eligibleV=legalV(0);else if(state.phase==='action'&&state.mode==='city')eligibleV=verts.filter(v=>state.ownerV[v.id]===0&&state.levelV[v.id]===1).map(v=>v.id)}
+ verts.forEach(v=>{
+  let owner=state.ownerV[v.id],level=state.levelV[v.id],harbor=harborVerts.has(v.id);
+  if(harbor){let ours=owner===0;
+   s+=`<circle cx="${v.x}" cy="${v.y}" r="${owner===-1?9:14}" class="port-landing ${ours?'ours':''}" opacity="${owner>=0?'.84':'.9'}"/>`;
+   if(owner===-1)s+=`<circle cx="${v.x}" cy="${v.y}" r="3.4" fill="#337a8c"/>`;
+  }
+  if(owner>=0){const color=PLAYER_COLORS[owner];
+   if(level===1)s+=`<g transform="translate(${v.x} ${v.y})"><path d="M-10 1 L0 -9 L10 1 V11 H-10 Z" fill="${color}" stroke="#253847" stroke-width="2.3"/><path d="M-4 11V4H3V11" fill="#ffffff99"/></g>`;
+   else s+=`<g transform="translate(${v.x} ${v.y})"><path d="M-12 -1 L-5 -8 L3 -8 L3 -2 L12 -2 L12 11 H-12Z" fill="${color}" stroke="#253847" stroke-width="2.3"/><rect x="-7" y="2" width="6" height="9" fill="#fff8cf"/><rect x="4" y="2" width="5" height="5" fill="#fff8cf"/></g>`;
+  }
+  if(eligibleV.includes(v.id)){s+=`<circle class="hint" cx="${v.x}" cy="${v.y}" r="${harbor?11:7.5}" fill="${harbor?'#ffe38e':'#fffcde'}" stroke="${harbor?'#c78022':'#ecdfaf'}" stroke-width="${harbor?2.7:1.5}" opacity=".96"/>`;
+   s+=`<circle class="hit" data-vert="${v.id}" cx="${v.x}" cy="${v.y}" r="14" fill="transparent"/>`;
+  }
+ });
+ // Bright selected endpoints are always drawn AFTER houses, roads, and availability markers.
+ if(selectedPort>=0&&ports[selectedPort]){
+  const e=edges[ports[selectedPort].edge];[e.a,e.b].forEach((v,i)=>{
+   const p=verts[v];s+=`<circle cx="${p.x}" cy="${p.y}" r="20" fill="#ffe8a2" fill-opacity=".35" stroke="#d17917" stroke-width="3.7" stroke-dasharray="5 2" pointer-events="none"/><g transform="translate(${p.x+13} ${p.y-13})" pointer-events="none"><circle r="8" fill="#ffdd82" stroke="#ad6c16" stroke-width="1.2"/><text y="4" class="port-landing-label">${i+1}</text></g>`;
+  });
+ }
+ // Larger port badges with explicit ratios and full-width transparent touch targets.
+ ports.forEach(p=>{
+  const {x,y}=portCoords(p),selected=selectedPort===p.id,own=ownedPorts(0).some(q=>q.id===p.id);
+  s+=`<g class="port-badge ${selected?'selected':''} ${own?'owned':''}"><rect x="${x-22}" y="${y-14}" width="44" height="28" rx="11"/><text class="symbol" x="${x-10}" y="${y+4}" text-anchor="middle">${p.type<0?'⚓':ICON[p.type]}</text><text class="ratio" x="${x+11}" y="${y+4}" text-anchor="middle">${p.type<0?'3:1':'2:1'}</text><rect data-port="${p.id}" aria-label="${portTitle(p)} の建設地点を表示" class="port-tap" x="${x-25}" y="${y-19}" width="50" height="38" rx="12"/></g>`;
+ });
+ // A separate, non-clickable pointer shows the exact CPU building spot after each move.
+ if(currentCpuEvent){
+  const ev=currentCpuEvent,color=PLAYER_COLORS[ev.i];
+  if(ev.kind==='road'&&edges[ev.target]){
+   const e=edges[ev.target],a=verts[e.a],b=verts[e.b];
+   s+=`<line class="cpu-spot-road" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${color}" stroke-width="17" stroke-linecap="round"/>`;
+  }else if(verts[ev.target]){
+   const v=verts[ev.target];s+=`<circle class="cpu-spot-ring" cx="${v.x}" cy="${v.y}" r="22" stroke="${color}" stroke-width="6" fill="none"/>`;
+  }
+ }
+ $('board').innerHTML=s;renderPortGuide();
+}
+function showToast(msg,duration=1400){let el=$('toast');el.textContent=msg;el.classList.remove('hidden');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.add('hidden'),duration)}
+function openModal(title,content,closable=true){modalType=title;$('scrim').classList.remove('hidden');$('sheet').innerHTML=`<div class="heading"><h2>${title}</h2>${closable?'<button class="xclose" id="closeModal">×</button>':''}</div>${content}`;$('closeModal')?.addEventListener('click',hideModal)}
+function hideModal(){$('scrim').classList.add('hidden');$('scrim').classList.remove('dev-screen');modalType=''}
+function costOk(type){return canAfford(0,COST[type])}
+function constructionConfirm(type,label,cost,fn){
+ const costs=cost?`<p>必要資源：<b>${buildCostText(cost)}</b></p>`:'<p>資源の支払いはありません。</p>';
+ openModal('📍 '+label+'の確認',`${costs}<p>この場所に${label}を建設しますか？</p><div class="row"><button class="sheetbtn secondary" id="noBuild">戻る</button><button class="sheetbtn" id="yesBuild">建設する</button></div>`,false);
+ $('noBuild').onclick=hideModal;$('yesBuild').onclick=()=>{hideModal();fn()};
+}
+function handleVertex(v){if(state.winner>=0||state.current!==0||cpuRunning)return;
+ if(state.phase==='setup-settlement'){
+  if(!validSettlement(v,0,true))return showToast('そこには置けません');
+  constructionConfirm('開拓地（初期配置）','開拓地（初期配置）',null,()=>{if(!placeSettlement(v,0,true))return;state.lastV=v;state.phase='setup-road';log('あなた：開拓地を配置');save();render()});return;
+ }
+ if(state.phase==='action'&&state.mode==='settlement'){
+  if(!costOk('settlement')||!validSettlement(v,0))return;
+  constructionConfirm('settlement','開拓地','settlement',()=>{if(!placeSettlement(v,0))return;state.mode=null;log('あなた：開拓地を建設');showToast('🏠 開拓地を建設！');save();render()});
+ }
+ if(state.phase==='action'&&state.mode==='city'){
+  if(state.ownerV[v]!==0||state.levelV[v]!==1||!costOk('city'))return;
+  constructionConfirm('city','都市','city',()=>{if(!placeCity(v,0))return;state.mode=null;log('あなた：都市に発展');showToast('🏰 都市に発展！');save();render()});
+ }
+}
+function handleEdge(e){if(state.winner>=0||state.current!==0||cpuRunning)return;
+ if(state.phase==='setup-road'){
+  if(!validRoad(e,0,true,state.lastV))return;
+  constructionConfirm('road','道（初期配置）',null,()=>{if(!placeRoad(e,0,true))return;log('あなた：道を配置');completeSetup()});return;
+ }
+ if(state.phase==='action'&&state.mode==='road'){
+  if(!costOk('road')||!validRoad(e,0))return showToast('自分の道・建物につながる道だけ建設できます');
+  constructionConfirm('road','道','road',()=>{if(!placeRoad(e,0))return;state.mode=null;log('あなた：道を建設（連続'+roadLength(0)+'本）');showToast(state.longest===0?'🏅 最長交易路！ ＋2点':'🛤️ 連続'+roadLength(0)+'本');save();render()});return;
+ }
+ if(['action','roll'].includes(state.phase)&&state.mode==='road-free'){
+  if(!validRoad(e,0))return;
+  constructionConfirm('road','無料の道',null,()=>{if(!placeRoad(e,0,false,true))return;state.pendingFree--;log('あなた：街道建設カードで道を配置');if(state.pendingFree<=0||legalE(0).length===0){state.pendingFree=0;state.mode=null}showToast('🛤️ 道を無料建設！');save();render()});
+ }
+}
+function robberVictims(t,i){return [...new Set(tiles[t].vs.map(v=>state.ownerV[v]).filter(j=>j>=0&&j!==i&&total(player(j))>0))]}
+function stealFrom(victim,i){let avail=player(victim).res.map((n,k)=>Array(n).fill(k)).flat();if(!avail.length)return;
+ let k=avail[rand(avail.length)];player(victim).res[k]--;give(i,k);log(NAMES[i]+' が '+NAMES[victim]+' から資源を1枚奪った');
+ if(i===0)showToast('🦹 '+fmt(k)+' を奪った！');
+}
+function moveRobber(t,i){if(!Number.isInteger(t)||t<0||t>=tiles.length||t===state.robber)return false;
+ state.robber=t;const victims=robberVictims(t,i);
+ if(victims.length)stealFrom(victims[rand(victims.length)],i);
+ else log(NAMES[i]+' が盗賊を動かした');return true;
+}
+function finishHumanRobber(){state.pendingRobber=false;state.pendingVictims=[];state.phase=state.robberReturnPhase||'action';state.robberReturnPhase='action';hideModal();checkWinner();save();render()}
+function showVictimChoices(){if(state.phase!=='choose-victim')return;
+ const victims=state.pendingVictims||robberVictims(state.robber,0);
+ if(!victims.length){finishHumanRobber();return}
+ openModal('🦹 奪う相手を選ぶ',`<p>盗賊の隣にいる相手から、資源カードをランダムに1枚奪えます。</p>${victims.map(i=>`<button class="sheetbtn secondary" data-victim="${i}" style="display:block;width:100%;margin:8px 0;border-left:5px solid ${PLAYER_COLORS[i]}">🤖 <span class="victim-name" style="color:${CPU_TEXT_COLORS[i]}">${NAMES[i]}</span>（カード${total(player(i))}枚）</button>`).join('')}`,false);
+ $('sheet').querySelectorAll('[data-victim]').forEach(btn=>btn.onclick=()=>{let i=+btn.dataset.victim;if(!victims.includes(i))return;stealFrom(i,0);finishHumanRobber()});
+}
+function doHumanRobber(t){if(state.phase!=='robber'||state.current!==0||!Number.isInteger(t)||t===state.robber||t<0||t>=tiles.length)return;
+ state.robber=t;state.pendingVictims=robberVictims(t,0);state.phase='choose-victim';save();render();showVictimChoices();
+}
+function discardAuto(i){let p=player(i),count=total(p);if(count<=7)return;let n=Math.floor(count/2);for(let k=0;k<n;k++){let choices=p.res.map((v,j)=>Array(v).fill(j)).flat();if(!choices.length)break;p.res[choices[rand(choices.length)]]--}log(NAMES[i]+'：盗賊で '+n+'枚を捨てた')}
+function discardHuman(next){if(total(player(0))<=7){next();return}let n=Math.floor(total(player(0))/2);if(n===0){next();return}let picked=[0,0,0,0,0];
+ const redraw=()=>{openModal('🦹 資源を捨てる',`<p>7が出ました。8枚以上持っている人は半分を捨てます。<br>あと <b>${n-picked.reduce((a,b)=>a+b,0)}</b> 枚選んでください。</p><div class="pills">${R.map((r,j)=>`<button class="pill" data-discard="${j}" ${picked[j]>=player(0).res[j]||picked.reduce((a,b)=>a+b,0)>=n?'disabled':''}>${ICON[j]}<strong>${picked[j]}</strong><small> / ${player(0).res[j]}</small></button>`).join('')}</div><div class="row"><button class="sheetbtn secondary" id="resetDiscard">選び直す</button><button class="sheetbtn" id="confirmDiscard" ${picked.reduce((a,b)=>a+b,0)!==n?'disabled':''}>捨てて進む</button></div>`,false);
+ $('sheet').querySelectorAll('[data-discard]').forEach(el=>el.onclick=()=>{picked[+el.dataset.discard]++;redraw()});$('resetDiscard').onclick=()=>{picked.fill(0);redraw()};$('confirmDiscard').onclick=()=>{picked.forEach((x,i)=>player(0).res[i]-=x);log('あなた：資源を '+n+'枚捨てた');hideModal();save();next()}};redraw()}
+function produce(n){let result=Array(4).fill(0).map(()=>[0,0,0,0,0]),tileItems=[];tiles.forEach(t=>{if(t.num!==n||t.id===state.robber)return;let amount=0;t.vs.forEach(v=>{let i=state.ownerV[v];if(i>=0){let amt=state.levelV[v];give(i,t.type,amt);result[i][t.type]+=amt;amount+=amt}});if(amount)tileItems.push({id:t.id,type:t.type,count:amount})});
+ walletGains=result[0].slice();walletFlashUntil=Date.now()+1100;if(tileItems.length)resourceFx(tileItems);
+ let gets=result.map((items,i)=>({i,count:items.reduce((a,b)=>a+b,0)})).filter(a=>a.count>0);state.lastProduction={n,by:state.current,round:state.round,gains:result};log(n+'の目：'+(gets.length?gets.map(g=>NAMES[g.i]+' '+formatGains(result[g.i])).join('、'):'資源の獲得なし'));
+ if(gets.length)showToast('🎁 '+gets.map(g=>NAMES[g.i]+' +'+g.count).join(' / '),1400)}
+function rollHuman(){if(state.phase!=='roll'||state.current!==0||rolling||state.mode==='road-free')return;
+ rolling=true;render();$('dice').classList.add('is-rolling');let anim=0;
+ const spin=setInterval(()=>{
+  state.dice=[1+rand(6),1+rand(6)];$('dice').innerHTML=state.dice.map(v=>`<span class="die">${['⚀','⚁','⚂','⚃','⚄','⚅'][v-1]}</span>`).join('');
+  if(++anim>7){clearInterval(spin);rolling=false;$('dice').classList.remove('is-rolling');sound('dice');let n=state.dice[0]+state.dice[1];log('あなた：'+n+' を出した');
+   if(n===7){reportSeven();for(let j=1;j<4;j++)discardAuto(j);state.phase='human-discard';save();discardHuman(()=>{state.phase='robber';state.pendingRobber=true;state.robberReturnPhase='action';showToast('🦹 盗賊を別のタイルへ移動');save();render()})}
+   else{produce(n);state.phase='action';checkWinner();save();render()}
+  }
+ },70);
+}
+function completeSetup(){state.setup++;state.lastV=-1;if(state.setup>=8){finishSetup();return}
+ state.current=state.setupOrder[state.setup];state.phase='setup-settlement';save();render();if(state.current!==0)setTimeout(cpuSetup,550)}
+function vertexValue(v,i){let p=player(i);let s=0,types=new Set();for(const tid of verts[v].tiles){let t=tiles[tid];if(t.type===5)continue;s+=(ODDS[t.num]||0)*2;types.add(t.type);if(t.type===0||t.type===1)s+=.7;}
+ let owned=new Set();verts.forEach(x=>{if(state.ownerV[x.id]===i)x.tiles.forEach(t=>owned.add(tiles[t].type))});for(const type of types)if(!owned.has(type))s+=3;
+ // Heavily favor intersection with multiple resources rather than single type.
+ s+=types.size*2;const harbor=ports.filter(p=>{let e=edges[p.edge];return e.a===v||e.b===v});if(harbor.length)s+=3.5;return s+Math.random()*4}
+function chooseSetupV(i){let opts=legalV(i,true);return opts.sort((a,b)=>vertexValue(b,i)-vertexValue(a,i))[0]}
+function edgeValue(e,i){let en=edges[e],a=en.a,b=en.b;let ends=[a,b];let s=0;
+ for(let v of ends){let opts=verts[v].neighbors;for(const u of opts)if(validSettlement(u,i,true))s=Math.max(s,vertexValue(u,i));}return s+Math.random()*3}
+function chooseSetupE(i,from){let opts=legalE(i,true,from);return opts.sort((a,b)=>edgeValue(b,i)-edgeValue(a,i))[0]}
+async function cpuSetup(){if(cpuRunning||state.current===0||state.winner>=0||!state.phase.startsWith('setup'))return;cpuRunning=true;
+ try{
+  while(state.setup<8&&state.current!==0){
+   const i=state.current;
+   if(state.phase==='setup-settlement'){
+    const v=chooseSetupV(i);if(v===undefined)break;
+    placeSettlement(v,i,true);state.lastV=v;state.phase='setup-road';log(NAMES[i]+' が開拓地を配置');save();render();showCpuNotice({i,kind:'settlement',target:v,initial:true});await cpuDelay(500,65);
+   }
+   const e=chooseSetupE(i,state.lastV);
+   if(e!==undefined)placeRoad(e,i,true);
+   log(NAMES[i]+' が道を配置');state.setup++;state.lastV=-1;
+   if(state.setup>=8){finishSetup()}
+   else{state.current=state.setupOrder[state.setup];state.phase='setup-settlement';save();render()}
+   if(e!==undefined){showCpuNotice({i,kind:'road',target:e,initial:true});await cpuDelay(450,65)}
+   if(state.setup>=8||state.current===0)break;
+  }
+ }finally{cpuRunning=false;save();render();clearCpuNotice()}
+}
+function actionsEnabled(){return state.current===0&&state.phase==='action'&&!cpuRunning}
+function onAction(act){if(arguments[0]==='result'){winModal(state.winner);return;}if(act==='rules')return showRules();if(act==='history')return showHistory();
+ if(act==='cancel'){
+  if(state.mode==='road-free'){state.pendingFree=0;log('あなた：無料道路の残りを使わずに終了')}
+  state.mode=null;save();render();return;
+ }
+ if(act==='roll')return rollHuman();
+ if(act==='cards'&&state.current===0&&['roll','action'].includes(state.phase)&&!cpuRunning){state.mode=null;render();return cardsModal()}
+ if(!actionsEnabled())return;
+ if(act==='end'){state.mode=null;advanceTurn();if(state.current!==0)runCpuTurns();return}
+ if(['road','settlement','city'].includes(act)){state.mode=state.mode===act?null:act;render();return}
+ if(act==='trade'){state.mode=null;render();return tradeModal()}
+ if(act==='dev'){state.mode=null;buyDev(0);save();render();return}
+}
+function initDeck(){state.deck=shuffled([...Array(14)].map(()=>({type:'knight'})).concat([...Array(5)].map(()=>({type:'vp'})),[{type:'plenty'},{type:'plenty'},{type:'monopoly'},{type:'monopoly'},{type:'freeRoad'},{type:'freeRoad'}]))}
+function buyDev(i){if(!Array.isArray(state.deck))initDeck();if(!state.deck.length||!canAfford(i,COST.dev))return false;pay(i,COST.dev);let c=state.deck.pop();c.turn=state.round;c.used=false;player(i).dev.push(c);if(c.type==='vp')player(i).vpCards++;log(NAMES[i]+'：発展カードを購入');if(i===0)showToast('🃏 '+cardName(c.type)+' を獲得！');checkWinner();return true}
+function cardName(t){return ({knight:'騎士',vp:'勝利点 +1',plenty:'収穫（好きな資源2枚）',monopoly:'独占（1種類を全回収）',freeRoad:'街道建設（道2本無料）'})[t]}
+function playCard(i,index){let p=player(i),c=p.dev[index];if(!c||c.used||c.type==='vp'||c.turn>=state.round||p.playedDev)return false;c.used=true;p.playedDev=true;if(i!==0){cpuDevHistory.push({i,type:c.type});if(cpuCapture)cpuEvents.push({i,kind:'dev',type:c.type});}
+ if(c.type==='knight'){p.usedKnights++;updateAwards();if(i===0){state.robberReturnPhase=state.phase;state.phase='robber';state.pendingRobber=true;showToast('⚔️ 騎士！ 盗賊を移動しよう')}else moveRobber(chooseRobberTile(i),i)}
+ if(c.type==='freeRoad'){if(i===0){state.pendingFree=2;state.mode='road-free';showToast('🛤️ 道を2本無料で建設！')}else for(let k=0;k<2;k++){let e=cpuBestRoad(i);if(e!==undefined)placeRoad(e,i,false,true)}}
+ if(c.type==='plenty'){if(i===0)resourceChoiceModal('plenty');else{let wants=cpuNeeds(i);give(i,wants[0]);give(i,wants[1])}}
+ if(c.type==='monopoly'){if(i===0)resourceChoiceModal('monopoly');else{let counts=R.map((r,j)=>state.players.reduce((n,p,k)=>n+(k===i?0:p.res[j]),0));let k=counts.indexOf(Math.max(...counts));state.players.forEach((p,j)=>{if(j!==i){give(i,k,p.res[k]);p.res[k]=0}})}}
+ log(NAMES[i]+'：'+cardName(c.type)+' を使用');checkWinner();save();render();return true}
+const DEV_TYPES=[
+ {type:'knight',icon:'⚔️',name:'騎士',desc:'盗賊を移動し、隣接する相手から資源を1枚奪う'},
+ {type:'freeRoad',icon:'🛤️',name:'街道建設',desc:'道を2本、資源を使わずに建設する'},
+ {type:'plenty',icon:'🌾',name:'収穫',desc:'好きな資源を合計2枚受け取る'},
+ {type:'monopoly',icon:'💰',name:'独占',desc:'指定した資源1種類をほかの全員から獲得する'},
+ {type:'vp',icon:'🏆',name:'勝利点',desc:'所持しているだけで勝利点が1点増える'}
+];
+let cpuDevHistory=[];
+const pendingDevReveals=new Set();
+function dismissDevReveals(){for(const finish of [...pendingDevReveals])finish()}
+function showDevEffect(i,type){
+ if(!fxPrefs.devEffects)return Promise.resolve();
+ const info=DEV_TYPES.find(t=>t.type===type);
+ if(!info)return Promise.resolve();
+ const fx=document.createElement('div');fx.className='dev-reveal';fx.tabIndex=0;fx.setAttribute('role','button');
+ fx.setAttribute('aria-label',NAMES[i]+'が'+info.name+'を使用。タップして続ける');
+ fx.innerHTML=`<div class="dev-reveal-inner"><small>${i===0?'あなた':NAMES[i]}が発展カードを使用</small><span class="symbol">${info.icon}</span><b>${info.name} 発動！</b><small>${info.desc}</small><span class="tap-dismiss">タップして続ける ›</span></div>`;
+ document.body.appendChild(fx);
+ return new Promise(resolve=>{
+  let settled=false;
+  const finish=()=>{if(settled)return;settled=true;pendingDevReveals.delete(finish);fx.remove();resolve();};
+  pendingDevReveals.add(finish);
+  fx.addEventListener('click',finish,{once:true});
+  fx.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();finish();}});
+ });
+}
+function closeDevScreen(){ $('scrim').classList.remove('dev-screen'); hideModal() }
+function cardsModal(){
+ const p=player(0),myTurn=state.current===0&&!cpuRunning&&['roll','action'].includes(state.phase)&&state.winner<0;
+ const tiles=DEV_TYPES.filter(t=>p.dev.some(c=>c.type===t.type)).map(t=>{
+  const owned=p.dev.map((c,i)=>({...c,index:i})).filter(c=>c.type===t.type);
+  const usable=owned.find(c=>!c.used&&c.type!=='vp'&&c.turn<state.round&&!p.playedDev);
+  const count=owned.filter(c=>!c.used).length;
+  let status=t.type==='vp'?'自動で得点に加算':count===0?'使用済み':!myTurn?'自分の手番で使用可能':p.playedDev?'このターンは使用済み':usable?'今すぐ使用可能':'購入したターンは使用不可';
+  const enabled=!!usable&&myTurn;
+  return `<article class="dev-tile ${enabled?'':'is-locked'}"><span class="dev-count">×${count}</span><span class="dev-emoji" aria-hidden="true">${t.icon}</span><strong class="dev-name">${t.name}</strong><span class="dev-desc">${t.desc}</span><span class="dev-state">${status}</span><button type="button" class="dev-use" data-dev-index="${usable?.index??-1}" ${enabled?'':'disabled'}>${t.type==='vp'?'自動加算':enabled?'このカードを使う':'使用できません'}</button></article>`
+ }).join('');
+ openModal('🃏 発展カード',`<p class="dev-intro">持っているカードを大きく表示しています。使用できるカードだけ「使う」を押せます。</p>${tiles?`<div class="dev-grid">${tiles}</div>`:'<div class="dev-empty">まだ発展カードがありません。<br>羊毛・小麦・鉱石で購入できます。</div>'}<p class="dev-note">発展カードは1ターンにつき1枚まで。購入したターンは使えません。勝利点カードは使用操作が不要です。</p>`);
+ $('scrim').classList.add('dev-screen');
+ $('sheet').querySelector('#closeModal')?.addEventListener('click',()=>$('scrim').classList.remove('dev-screen'));
+ $('sheet').querySelectorAll('[data-dev-index]').forEach(btn=>btn.onclick=()=>{
+  const index=+btn.dataset.devIndex,c=player(0).dev[index];
+  if(!c||c.used||c.turn>=state.round||player(0).playedDev||state.current!==0||cpuRunning)return;
+  closeDevScreen();
+  showDevEffect(0,c.type).then(()=>playCard(0,index));
+ });
+}
+function resourceChoiceModal(kind){let selected=[];
+ const display=()=>{if(kind==='plenty')openModal('🌾 収穫',`<p>資源を合計2枚もらえます。あと${2-selected.length}枚を選択。</p><div class="pills">${R.map((r,j)=>`<button class="pill" data-resource="${j}">${ICON[j]}<strong>${selected.filter(x=>x===j).length}</strong></button>`).join('')}</div><button class="sheetbtn secondary" id="resetP">選び直す</button>`,false);
+ else openModal('💰 独占',`<p>選んだ種類の資源を、ほかの3人からすべてもらいます。</p><div class="pills">${R.map((r,j)=>`<button class="pill" data-resource="${j}">${ICON[j]}<strong>${R[j]}</strong></button>`).join('')}</div>`,false);
+ $('sheet').querySelectorAll('[data-resource]').forEach(el=>el.onclick=()=>{let k=+el.dataset.resource;if(kind==='plenty'){selected.push(k);give(0,k);if(selected.length<2)return display();log('あなた：資源を2枚獲得');}else{let amount=0;for(let i=1;i<4;i++){amount+=player(i).res[k];give(0,k,player(i).res[k]);player(i).res[k]=0}showToast(fmt(k)+' を'+amount+'枚独占！');log('あなた：'+R[k]+'を'+amount+'枚独占')}hideModal();save();render()});
+ if(kind==='plenty')$('resetP').onclick=()=>{selected.forEach(k=>player(0).res[k]--);selected=[];display()}};display()}
+// CPUs appraise a full basket, considering the resources required for their next build.
+function cpuResourceValues(i,inv){
+ const goal=cpuGoal(i),cost=goal.cost||COST.settlement;
+ return R.map((_,k)=>{
+  const mine=inv[k], deficit=Math.max(0,cost[k]-mine);
+  const scarcity=tiles.filter(t=>t.type===k).reduce((a,t)=>a+(ODDS[t.num]||0)*t.vs.filter(v=>state.ownerV[v]===i).reduce((b,v)=>b+state.levelV[v],0),0);
+  return 1.2+(deficit>0?1.6:0)+(mine===0?.7:0)+(scarcity<5?.28:0)-(mine>=5?.55:0);
+ });
+}
+function cpuTradeUtility(i,offer,ask){
+ const old=player(i).res,after=old.map((n,k)=>n+offer[k]-ask[k]);
+ if(after.some(n=>n<0))return -999;
+ const before=cpuResourceValues(i,old),afterWeight=cpuResourceValues(i,after);
+ let value=0;
+ for(let k=0;k<5;k++){
+  // Use the average marginal utility on either side of the exchange.
+  let added=offer[k],removed=ask[k];
+  if(added)value+=added*(before[k]+afterWeight[k])*.5;
+  if(removed)value-=removed*(before[k]+afterWeight[k])*.5;
+ }
+ const goal=cpuGoal(i),cost=goal.cost;
+ if(cost){
+  if(!cost.every((n,k)=>old[k]>=n)&&cost.every((n,k)=>after[k]>=n))value+=3.5;
+  if(cost.every((n,k)=>old[k]>=n)&&!cost.every((n,k)=>after[k]>=n))value-=4.0;
+ }
+ const diff=state.difficulty||'normal';
+ return value-({easy:-1.3,normal:.35,hard:1.25}[diff]||.35);
+}
+const tradeCount=a=>a.reduce((n,x)=>n+x,0);
+function tradeModal(){
+ let giveType=0,getType=1,mode='bank',bankQty=1,target=1,result='',offer=[0,0,0,0,0],ask=[0,0,0,0,0],counter=null;
+ const p=player(0);
+ const display=()=>{
+  const bank=mode==='bank',rate=rateFor(0,giveType),maxBank=Math.floor(p.res[giveType]/rate);
+  const validBank=giveType!==getType&&bankQty>0&&bankQty<=maxBank;
+  const validCpu=tradeCount(offer)>0&&tradeCount(ask)>0&&offer.every((v,k)=>v<=p.res[k])&&offer.every((v,k)=>v===0||ask[k]===0);
+  const stepRows=(direction,amounts)=>R.map((r,k)=>`<div class="trade-row"><span class="rtitle">${ICON[k]} ${r}</span><div class="step"><button type="button" class="stepbtn" data-dir="${direction}" data-k="${k}" data-delta="-1" aria-label="${r}を1枚減らす" ${amounts[k]===0?'disabled':''}>−</button><b>${amounts[k]}</b><button type="button" class="stepbtn" data-dir="${direction}" data-k="${k}" data-delta="1" aria-label="${r}を1枚増やす" ${amounts[k]>=Math.min(6,direction==='offer'?p.res[k]:6)||(direction==='offer'?ask[k]:offer[k])>0?'disabled':''}>＋</button></div></div>`).join('');
+  let body=`<p>銀行は港の交換率でまとめて取引できます。CPUには複数種類・複数枚をまとめて提案できます。</p><div class="row"><button type="button" class="sheetbtn ${bank?'':'secondary'}" id="tabBank" style="flex:1">🏦 銀行・港</button><button type="button" class="sheetbtn ${!bank?'':'secondary'}" id="tabCpu" style="flex:1">🤖 CPUと交渉</button></div>`;
+  if(bank){
+   body+=`<div class="row"><label>渡す</label><select id="giveSel">${R.map((r,i)=>`<option value="${i}" ${i===giveType?'selected':''}>${fmt(i)}（${p.res[i]}枚）</option>`).join('')}</select></div><div class="row"><label>受取</label><select id="getSel">${R.map((r,i)=>`<option value="${i}" ${i===getType?'selected':''}>${fmt(i)}</option>`).join('')}</select></div><div class="row"><label>交換回数</label><button type="button" class="stepbtn" id="bankMinus" ${bankQty<=1?'disabled':''}>−</button><b>${bankQty}回</b><button type="button" class="stepbtn" id="bankPlus" ${bankQty>=Math.max(1,maxBank)?'disabled':''}>＋</button></div><div class="trade-summary">⚓ ${escapeText(portSummary(0))}<br><strong>${fmt(giveType)} ${rate*bankQty}枚 → ${fmt(getType)} ${bankQty}枚</strong></div><button type="button" class="sheetbtn" id="goTrade" ${validBank?'':'disabled'}>この条件で交換</button>`;
+  }else{
+   body+=`<div><label>交渉相手を選択</label><div class="cpu-choice-row" role="group" aria-label="交渉相手を選択">${[1,2,3].map(i=>`<button type="button" class="cpu-choice ${i===target?'is-selected':''}" data-trade-cpu="${i}" aria-pressed="${i===target}" style="--cpu-color:${PLAYER_COLORS[i]};--cpu-text:${CPU_TEXT_COLORS[i]}"><span class="cpu-choice-name">● ${NAMES[i]}</span><small>手札${total(player(i))}枚</small></button>`).join('')}</div></div><div class="trade-grid"><div class="trade-col offer"><h3>📤 あなたが渡す</h3><div class="micro">持っている資源から選択</div>${stepRows('offer',offer)}</div><div class="trade-col request"><h3>📥 CPUからもらう</h3><div class="micro">CPUの手札にない資源は交換不可</div>${stepRows('ask',ask)}</div></div><div class="trade-summary"><strong>渡す ${tradeCount(offer)}枚 ⇄ もらう ${tradeCount(ask)}枚</strong><br>${offer.map((v,k)=>v?ICON[k]+v:'').filter(Boolean).join(' ')||'未選択'} → ${ask.map((v,k)=>v?ICON[k]+v:'').filter(Boolean).join(' ')||'未選択'}</div><button type="button" class="sheetbtn" id="goTrade" ${validCpu?'':'disabled'}>🤝 この条件を提案</button> <button type="button" class="sheetbtn secondary" id="clearTrade">クリア</button>`;
+  }
+  if(result)body+=`<div class="trade-result" role="status">${escapeText(result)}</div>`;
+  if(counter&&mode==='cpu')body+=`<button type="button" class="sheetbtn alt" id="acceptCounter">逆提案を受け入れる（＋${fmt(counter.type)}1枚）</button>`;
+  openModal('🤝 資源の交易',body);
+  $('tabBank').onclick=()=>{mode='bank';result='';counter=null;display()};
+  $('tabCpu').onclick=()=>{mode='cpu';result='';counter=null;display()};
+  if(bank){
+   $('giveSel').onchange=e=>{giveType=+e.target.value;bankQty=1;result='';display()};
+   $('getSel').onchange=e=>{getType=+e.target.value;result='';display()};
+   $('bankMinus').onclick=()=>{bankQty--;display()};
+   $('bankPlus').onclick=()=>{bankQty++;display()};
+  }else{
+   $('sheet').querySelectorAll('[data-trade-cpu]').forEach(b=>b.onclick=()=>{target=+b.dataset.tradeCpu;counter=null;result='';display()});
+   $('clearTrade').onclick=()=>{offer.fill(0);ask.fill(0);counter=null;result='';display()};
+   $('sheet').querySelectorAll('[data-dir]').forEach(b=>b.onclick=()=>{
+     let k=+b.dataset.k,d=+b.dataset.delta,dir=b.dataset.dir==='offer'?offer:ask;
+     dir[k]+=d;counter=null;result='';display();
+   });
+  }
+  $('goTrade').onclick=()=>{
+   if(bank){if(!validBank||p.res[giveType]<rate*bankQty)return;pay(0,R.map((_,k)=>k===giveType?rate*bankQty:0));give(0,getType,bankQty);log('あなた：銀行と'+R[giveType]+rate*bankQty+'枚 ⇄ '+R[getType]+bankQty+'枚');hideModal();save();render();sound('trade');showToast('🤝 まとめて'+bankQty+'回交換！');return}
+   if(!validCpu||offer.some((v,k)=>v>p.res[k]))return;
+   const cp=player(target);
+   if(ask.some((v,k)=>v>cp.res[k])){counter=null;result=NAMES[target]+'：必要な資源を持っていないので交換できません。';display();return}
+   let utility=cpuTradeUtility(target,offer,ask);
+   if(utility>=0){finishTrade();return}
+   counter=null;
+   for(const k of [0,1,2,3,4].sort((a,b)=>cpuResourceValues(target,cp.res)[b]-cpuResourceValues(target,cp.res)[a])){
+    if(p.res[k]<=offer[k]||ask[k]>0||offer[k]>=6)continue;
+    const alt=[...offer];alt[k]++;
+    if(cpuTradeUtility(target,alt,ask)>=0){counter={type:k,offer:alt,ask:[...ask],target};break}
+   }
+   result=NAMES[target]+'：「その条件では交換できません」'+(counter?' ただし追加の資源があれば応じてくれそうです。':' 別の組み合わせを試してみよう。');display();
+  };
+  if(counter&&mode==='cpu')$('acceptCounter').onclick=()=>{
+   if(target!==counter.target||counter.offer.some((v,k)=>v>p.res[k])||counter.ask.some((v,k)=>v>player(target).res[k])){result='手札が変わったので再提案してください。';counter=null;display();return}
+   offer=[...counter.offer];ask=[...counter.ask];finishTrade();
+  };
+  function finishTrade(){
+   if(offer.some((v,k)=>v>p.res[k])||ask.some((v,k)=>v>player(target).res[k]))return;
+   for(let k=0;k<5;k++){p.res[k]-=offer[k];player(target).res[k]+=offer[k];player(target).res[k]-=ask[k];p.res[k]+=ask[k]}
+   log('あなた：'+NAMES[target]+' と'+tradeCount(offer)+'枚⇄'+tradeCount(ask)+'枚の交易');
+   hideModal();save();render();sound('trade');showToast('🤝 '+NAMES[target]+'と交易成立！');
+  }
+ };
+ display();
+}
+function showPort(id){
+ if(!$('scrim').classList.contains('hidden')||!ports[id])return;
+ selectedPort=(selectedPort===id?-1:id);renderBoard();
+ if(selectedPort>=0)showToast('⚓ 金色の①・②が港を利用できる建設位置です',2000);
+}
+function showTileInfo(id){if(!$('scrim').classList.contains('hidden'))return;let t=tiles[id];if(!t||state.phase==='robber')return;let owners=t.vs.filter(v=>state.ownerV[v]>=0).map(v=>`${NAMES[state.ownerV[v]]}の${state.levelV[v]===2?'都市':'開拓地'}`);
+ openModal((t.type===5?'🏜️ 砂漠':fmt(t.type)+' の土地'),`<p>${t.type===5?'資源を生みません。':`🎲 出目 <b>${t.num}</b> で${R[t.type]}を獲得。確率 <b>${((ODDS[t.num]||0)/36*100).toFixed(1)}%</b>。`}</p><p>${state.robber===id?'🦹 盗賊がいるため生産停止中。':'この土地に盗賊はいません。'}</p><p><b>接している建物：</b>${owners.join('・')||'なし'}</p>`);
+}
+function showHandModal(){
+ const p=player(0),unplayed=visibleDevCount(0);
+ const resourceCards=R.map((name,i)=>`<div class="hand-big-card r-${i}"><span class="hand-big-ico">${ICON[i]}</span><span class="hand-big-name">${name}</span><strong>${p.res[i]}<small>枚</small></strong></div>`).join('');
+ openModal('🎴 自分の手札',`<p>資源カード <b>${total(p)}枚</b>・未使用の発展カード <b>${unplayed}枚</b>。数字は持っている枚数です。</p><div class="hand-modal-grid">${resourceCards}</div><div class="hand-modal-foot"><span>🃏 発展カード ${unplayed}枚（使用済みは除く）</span><button class="sheetbtn" id="handToDev">内容を見る ›</button></div><p class="sub">相手には資源の種類と内訳は公開されず、合計枚数だけが見えます。</p>`);
+ $('handToDev').onclick=cardsModal;
+}
+function showPlayerInfo(i){
+ const p=player(i),privateCards=i!==0&&state.winner<0,shownPoints=score(i,!privateCards),devs=visibleDevCount(i);
+ const pointRows=pointBreakdown(i,privateCards).map(([name,pts])=>`<span>${escapeText(name)}</span><b>${pts}点</b>`).join('');
+ const resourceContent=privateCards?`<div class="rival-hidden">🔒 相手の資源は種類を公開せず、合計 <b>${total(p)}枚</b>のみ表示します。</div>`:
+ `<div class="rival-resources">${R.map((name,k)=>`<span>${ICON[k]} ${name} <b>${p.res[k]}</b></span>`).join('')}</div>`;
+ openModal((i===0?'⭐ ':'🤖 ')+NAMES[i]+' の状況',`<div class="rival-overview"><div><small>公開勝利点</small><strong>${shownPoints}<em> / 10点</em></strong></div><div><small>🎒 資源カード</small><strong>${total(p)}<em>枚</em></strong></div><div><small>🃏 発展カード</small><strong>${devs}<em>枚</em></strong></div><div><small>🛤 最長連続道</small><strong>${roadLength(i)}<em>本</em></strong></div></div><p class="rival-pieces">🏠 開拓地 <b>${p.settlements}/5</b>　🏰 都市 <b>${p.cities}/4</b>　🛤 道 <b>${p.roads}/15</b>　⚔️ 使用済み騎士 <b>${p.usedKnights}</b></p><h3 class="rival-heading">資源カード</h3>${resourceContent}<h3 class="rival-heading">得点の内訳</h3><div class="breakdown">${pointRows}</div>${privateCards?'<p class="warning">未公開の勝利点カードは相手の得点に含めて表示しません。発展カードは種類も非公開です。</p>':''}<p class="rival-port">⚓ 利用できる港：${escapeText(portSummary(i))}</p>${i===0?'<button type="button" class="sheetbtn" id="rivalMyHand">自分の手札を詳しく見る</button>':''}`);
+ if(i===0)$('rivalMyHand').onclick=showHandModal;
+}
+function showHistory(){openModal('📝 プレイ履歴',`<p>最近の出来事を表示しています。</p><div class="log">${state.log.map(x=>`<div>• ${escapeText(x)}</div>`).join('')}</div>`)}
+function showRules(){openModal('📖 遊び方',`<p><b>目標：</b>先に10勝利点を取った人の勝ち。開拓地1点・都市2点・最長交易路2点・最大騎士力2点・発展カードの勝利点。</p><p><b>初期配置：</b>全員がサイコロ2個を振り、合計の大きい順に配置します（同点なら振り直し）。開拓地→隣接する道を1本。2周目は逆順（4位→1位）で置き、2つ目の開拓地の周囲から最初の資源を獲得します。通常の手番は1位→4位の順です。</p><p><b>毎ターン：</b>サイコロを振り、対応する数字の土地から資源獲得。盗賊がいる土地は生産停止。7が出たら手札8枚以上の人は半分を捨て、盗賊を移動します。</p><p><b>建設コスト：</b><br>🛤️ 道：${buildCostText('road')}<br>🏠 開拓地：${buildCostText('settlement')}<br>🏰 都市：${buildCostText('city')}<br>🃏 発展カード：${buildCostText('dev')}</p><p><b>道の建設：</b>最初の道は今置いた開拓地の隣。ゲーム開始後の道は<b>自分の開拓地・都市、または自分の既存の道</b>に接している場所にのみ建設できます。相手の建物を通過できませんが、分断された自分の道の端から延長することは可能です。</p><p><b>最長交易路：</b>自分の道が<b>連続5本以上</b>で、最長（同率なら保持者が優先）なら<b>＋2点</b>。分岐を合計して数えることはできず、相手の建物で分断された部分は別に数えます。同率の場合は既存の称号保持者が維持します。</p><p><b>開拓地：</b>自分の道と接続し、他の開拓地・都市から1辺以上離した交点にのみ建設できます。</p><p><b>交易：</b>銀行は通常4:1、港を利用できれば3:1または2:1。CPUに複数種類・複数枚の交換を提案でき、断られた場合は逆提案もあります。CPUの強さは上部の「🤖」ボタンで切り替えられます。騎士などの発展カードはサイコロ前にも使用できます。発展カードは購入したターンに使用不可。騎士3枚以上でも最大騎士力のボーナスを狙えます。</p><p class="sub">オリジナルの簡易デジタル版です。港のマークから伸びる2本の線の先、丸で囲まれた2地点のどちらかに<b>自分の開拓地・都市</b>を建てると使えます。港マークをタップすると金色の①②で建設地点が強調されます。港を使うためにも通常の開拓地建設ルールが必要です。一部の交渉・資源市場のルールはデジタル版向けに簡略化しています。</p>`)}
+function winModal(i){const rows=state.players.map((p,j)=>`${NAMES[j]}：<b>${score(j)}点</b>（開拓地${p.settlements}点・都市${p.cities*2}点・勝利点カード${p.vpCards}点・最長交易路${state.longest===j?2:0}点・最大騎士力${state.army===j?2:0}点）`).join('<br>');
+ if(i===0){sound('win');confetti()}
+ openModal(i===0?'🎉 あなたの勝利！':'🏁 '+NAMES[i]+' の勝利',`<div class="victory-lead">${i===0?'🏝️ 島の開拓王になりました！':'今回は '+NAMES[i]+' が勝利！'}</div><p style="text-align:center">${state.round}ラウンドで決着 · ${score(i)}点獲得</p><div class="log">${rows}</div><button class="sheetbtn" id="again">もう一度遊ぶ</button>`,false);$('again').onclick=newGame;
+}
+function chooseRobberTile(i){let opts=tiles.filter(t=>t.id!==state.robber).map(t=>({id:t.id,score: t.vs.reduce((n,v)=>n+(state.ownerV[v]>=0&&state.ownerV[v]!==i?state.levelV[v]*(ODDS[t.num]||2):0),0)}));opts.sort((a,b)=>b.score-a.score);return opts[0]?.id??((state.robber+1)%19)}
+function cpuProduction(i){let output=Array(5).fill(0);
+ for(const t of tiles){if(t.type===5)continue;for(const v of t.vs)if(state.ownerV[v]===i)output[t.type]+=(ODDS[t.num]||0)*state.levelV[v]}
+ return output;
+}
+// Find the next place worth developing, even if it needs a few extra roads.
+function cpuFrontier(i){
+ let candidates=verts.filter(v=>validSettlement(v.id,i,true));
+ let frontier=[];
+ const canTravel=v=>state.ownerV[v]===-1||state.ownerV[v]===i;
+ for(const v of verts){
+  if(!connectsToOwnRoad(v.id,i))continue;
+  let queue=[{v:v.id,c:0}],costs=Array(verts.length).fill(999);costs[v.id]=0;
+  // The graph is small; a 0/1 breadth-first relaxation suffices.
+  for(let at=0;at<queue.length;at++){
+   let {v:u,c}=queue[at];if(costs[u]!==c)continue;
+   for(const id of verts[u].edges){if(state.ownerE[id]>=0&&state.ownerE[id]!==i)continue;
+    let o=edges[id].a===u?edges[id].b:edges[id].a;
+    if(!canTravel(o))continue;
+    let d=c+(state.ownerE[id]===i?0:1);
+    if(d<costs[o]&&d<=6){costs[o]=d;queue.push({v:o,c:d})}
+   }
+  }
+  for(const cv of candidates){if(costs[cv.id]<999)frontier.push({v:cv.id,steps:costs[cv.id],value:vertexValue(cv.id,i)})}
+ }
+ frontier.sort((a,b)=>(b.value-9*b.steps)-(a.value-9*a.steps));
+ return frontier[0]||null;
+}
+function cpuGoal(i){
+ let p=player(i),v=cpuBestSettlement(i),c=cpuBestCity(i),front=cpuFrontier(i);
+ const prod=cpuProduction(i),progress=score(i);
+ if(v!==undefined&&p.settlements<5){
+  if(c!==undefined&&p.cities<4&&canAfford(i,COST.city)&&!canAfford(i,COST.settlement)&&prod[4]>7)return {kind:'city',cost:COST.city,target:c};
+  return {kind:'settlement',cost:COST.settlement,target:v};
+ }
+ if(c!==undefined&&p.cities<4&&(p.cities<2||p.settlements>=5||prod[4]>7||progress>=7))return {kind:'city',cost:COST.city,target:c};
+ if(front&&p.roads<15&&front.steps>0&&front.steps<=5)return {kind:'road',cost:COST.road,target:front.v,steps:front.steps};
+ if(c!==undefined&&p.cities<4)return {kind:'city',cost:COST.city,target:c};
+ if(p.roads<15&&legalE(i).length)return {kind:'road',cost:COST.road,target:-1};
+ return {kind:'dev',cost:COST.dev,target:-1};
+}
+function cpuNeeds(i){const p=player(i),goal=cpuGoal(i),need=[];
+ for(let k=0;k<5;k++)for(let n=0;n<Math.max(0,goal.cost[k]-p.res[k]);n++)need.push(k);
+ if(need.length<2){let costs=[COST.city,COST.settlement,COST.dev,COST.road];for(const cost of costs)for(let k=0;k<5;k++)if(p.res[k]<cost[k])need.push(k)}
+ return need.length?shuffled(need):[3,4,2,0,1];
+}
+// Find the best legal road toward buildable land, ports and longest-road bonuses.
+function cpuBestRoad(i){const arr=legalE(i);if(!arr.length)return;
+ const before=roadLength(i),fronts=verts.filter(v=>validSettlement(v.id,i,true));
+ let sc=e=>{
+  const {a,b}=edges[e],ends=[a,b];
+  state.ownerE[e]=i;
+  const newLen=roadLength(i);let best=-12;
+  for(const root of ends){
+   let costs=Array(verts.length).fill(Infinity),queue=[root];costs[root]=0;
+   for(let at=0;at<queue.length;at++){
+    const cur=queue[at];
+    for(const ei of verts[cur].edges){if(state.ownerE[ei]>=0&&state.ownerE[ei]!==i)continue;
+     const next=edges[ei].a===cur?edges[ei].b:edges[ei].a;
+     if(state.ownerV[next]>=0&&state.ownerV[next]!==i)continue;
+     const nextCost=costs[cur]+(state.ownerE[ei]===i?0:1);
+     if(nextCost<costs[next]){costs[next]=nextCost;queue.push(next)}
+    }
+   }
+   for(const v of fronts){if(costs[v.id]<Infinity){const score=vertexValue(v.id,i)/(1+costs[v.id]*.47)-costs[v.id]*2.5;best=Math.max(best,score)}}
+  }
+  state.ownerE[e]=-1;
+  let gain=newLen-before;
+  const top=Math.max(...state.players.map((p,j)=>j===i?0:roadLength(j)));
+  const race=before>=3||top>=4;
+  return best+Math.max(0,gain)*(race?9:2)+(before<5&&newLen>=5?24:0)+Math.random()*(state.difficulty==='easy'?12:1.5);
+ };
+ return arr.map(e=>({e,s:sc(e)})).sort((a,b)=>b.s-a.s)[0]?.e;
+}
+function cpuBestSettlement(i){let arr=legalV(i);return arr.sort((a,b)=>vertexValue(b,i)-vertexValue(a,i))[0]}
+function cpuBestCity(i){let arr=verts.filter(v=>state.ownerV[v.id]===i&&state.levelV[v.id]===1);return arr.sort((a,b)=>vertexValue(b.id,i)-vertexValue(a.id,i))[0]?.id}
+function cpuTrade(i){let p=player(i),goal=cpuGoal(i),cost=goal.cost,needs=[];
+ for(let k=0;k<5;k++)if(p.res[k]<cost[k])needs.push(k);
+ if(!needs.length)return false;
+ const production=cpuProduction(i);needs.sort((a,b)=>production[a]-production[b]);
+ const want=needs[0];
+ const candidates=[];
+ for(let k=0;k<5;k++){
+  if(k===want)continue;
+  const rate=rateFor(i,k);
+  const surplus=p.res[k]-cost[k];
+  if(p.res[k]>=rate&&surplus>=rate)candidates.push({k,rate,surplus,sc:surplus-production[k]*.05});
+ }
+ candidates.sort((a,b)=>b.sc-a.sc);
+ if(!candidates.length)return false;
+ const {k,rate}=candidates[0];p.res[k]-=rate;give(i,want);log(NAMES[i]+'：'+fmt(k)+rate+'枚を'+fmt(want)+'に交換（'+goal.kind+'を目標）');return true;
+}
+function cpuAction(i){let p=player(i),changed=false,diff=state.difficulty||'normal';
+ // Try one saved card before building; save subsequent actions at the usual turn checkpoint.
+ if(!p.playedDev){
+  let ci=p.dev.findIndex(c=>!c.used&&c.turn<state.round&&c.type==='freeRoad'&&legalE(i).length>0);
+  if(ci<0){let counts=R.map((_,k)=>state.players.reduce((sum,q,j)=>sum+(j===i?0:q.res[k]),0));if(Math.max(...counts)>=4)ci=p.dev.findIndex(c=>!c.used&&c.turn<state.round&&c.type==='monopoly')}
+  if(ci<0&&cpuNeeds(i).some(k=>p.res[k]===0))ci=p.dev.findIndex(c=>!c.used&&c.turn<state.round&&c.type==='plenty');
+  if(ci<0&&(p.usedKnights>=2||Math.random()<.52))ci=p.dev.findIndex(c=>!c.used&&c.turn<state.round&&c.type==='knight');
+  if(ci>=0){playCard(i,ci);changed=true}
+ }
+ for(let k=0;k<11;k++){
+  if(state.winner>=0)break;
+  const goal=cpuGoal(i),v=cpuBestSettlement(i),c=cpuBestCity(i),e=cpuBestRoad(i);
+  const canV=v!==undefined&&canAfford(i,COST.settlement),canC=c!==undefined&&p.cities<4&&canAfford(i,COST.city),canE=e!==undefined&&p.roads<15&&canAfford(i,COST.road);
+  const latest=roadLength(i),rivals=Math.max(...state.players.map((q,j)=>j===i?0:roadLength(j)));
+  const roadRace=(latest>=3&&latest<=Math.max(5,rivals+1))||rivals>=4;
+  if(canV&&(goal.kind==='settlement'||!canC)){placeSettlement(v,i);log(NAMES[i]+'：開拓地を増やした');changed=true;continue}
+  if(canC&&(goal.kind==='city'||!canV)){placeCity(c,i);log(NAMES[i]+'：都市へ発展');changed=true;continue}
+  if(canE&&(goal.kind==='road'||(roadRace&&diff!=='easy'&&legalV(i).length===0))){
+   placeRoad(e,i);log(NAMES[i]+'：将来の開拓地・最長交易路を狙って道を建設');changed=true;continue;
+  }
+  if(canV){placeSettlement(v,i);log(NAMES[i]+'：開拓地を建設');changed=true;continue}
+  if(canC){placeCity(c,i);log(NAMES[i]+'：都市を建設');changed=true;continue}
+  if(cpuTrade(i)){changed=true;continue}
+  // Do not burn all wheat/ore on roads; buy a development card when the plan stalls.
+  if(state.deck?.length&&canAfford(i,COST.dev)&&
+     (goal.kind==='dev'||(diff!=='easy'&&p.res[4]>=2)||Math.random()<(diff==='hard'?.46:.22))){buyDev(i);changed=true;continue}
+  if(canE&&goal.kind==='road'){placeRoad(e,i);log(NAMES[i]+'：道を建設');changed=true;continue}
+  break;
+ }
+ if(state.winner<0&&state.deck?.length&&canAfford(i,COST.dev)&&Math.random()<(diff==='easy'?.25:.58)){buyDev(i);changed=true}
+ return changed;
+}
+// Each CPU turn commits its phase to storage at four checkpoints.
+// A reload after rolling never rolls again or pays out resources twice.
+async function runCpuTurns(){
+ if(cpuRunning||state.winner>=0||state.phase!=='cpu'||state.current===0)return;
+ cpuRunning=true;
+ try{
+  while(state.phase==='cpu'&&state.current!==0&&state.winner<0){
+   const i=state.current;
+   if(state.cpuStep!==i){state.cpuStep=i;state.cpuStage='start';save()}
+   if(state.cpuStage==='start'){
+    // 'start' is only entered once per CPU turn, even after resuming a saved game.
+    state.cpuStage='before-roll';save();
+   }
+   if(state.cpuStage==='before-roll'){
+    if(!player(i).playedDev){let idx=player(i).dev.findIndex(c=>!c.used&&c.type==='knight'&&c.turn<state.round);
+     if(idx>=0&&Math.random()<.65){const type=player(i).dev[idx].type;if(playCard(i,idx))await showDevEffect(i,type)}}
+    if(state.winner>=0){state.cpuStage='action-done';save();render();break}
+    state.cpuStage='ready-roll';save();render();await cpuDelay(400,65);
+   }
+   if(state.cpuStage==='ready-roll'){
+    let dice=[1+rand(6),1+rand(6)],n=dice[0]+dice[1];state.dice=dice;sound('dice');log(NAMES[i]+'：サイコロ '+n);
+    if(n===7){reportSeven();for(let j=1;j<4;j++)discardAuto(j);state.cpuStage='await-discard';save();}
+    else{produce(n);state.cpuStage='rolled';save();}
+   }
+   if(state.cpuStage==='await-discard'){
+    // Human's discard is a resumable pause in the CPU turn.
+    await new Promise(resolve=>discardHuman(resolve));
+    if(state.winner>=0)break;
+    moveRobber(chooseRobberTile(i),i);state.cpuStage='rolled';save();
+   }
+   if(state.cpuStage==='rolled'){
+    render();await cpuDelay(300,65);cpuEvents=[];cpuCapture=true;try{cpuAction(i)}finally{cpuCapture=false}
+    const performed=cpuEvents.slice();cpuEvents=[];state.cpuStage='action-done';save();render();await replayCpuEvents(performed);
+    if(state.winner>=0)break;await cpuDelay(180,40);
+   }
+   if(state.winner<0&&state.cpuStage==='action-done')advanceTurn();
+  }
+  if(state.winner>=0){save();render()}
+ }finally{cpuRunning=false;render();clearCpuNotice()}
+}
+$('board').addEventListener('click',e=>{let node=e.target.closest('[data-vert],[data-edge],[data-tile],[data-port]');if(!node)return;if(node.hasAttribute('data-vert'))handleVertex(+node.dataset.vert);else if(node.hasAttribute('data-edge'))handleEdge(+node.dataset.edge);else if(node.hasAttribute('data-port'))showPort(+node.dataset.port);else if(node.hasAttribute('data-tile')){if(state.phase==='robber')doHumanRobber(+node.dataset.tile);else showTileInfo(+node.dataset.tile)}});
+$('players').addEventListener('click',e=>{let n=e.target.closest('[data-player]');if(n&&$('scrim').classList.contains('hidden'))showPlayerInfo(+n.dataset.player)});
+$('wallet').addEventListener('click',e=>{if(e.target.closest('.res')&&$('scrim').classList.contains('hidden'))showHandModal()});
+$('handDevBtn').onclick=cardsModal;
+$('actions').addEventListener('click',e=>{let b=e.target.closest('[data-act]');if(b&&!b.disabled)onAction(b.dataset.act)});
+$('historyBtn').onclick=showHistory;$('rulesBtn').onclick=showRules;
+$('portHelpBtn').onclick=()=>{selectedPort=selectedPort<0?0:(selectedPort+1)%ports.length;renderBoard();showToast('⚓ 港をタップすると対象の2地点を強調します',1600)};
+$('app').addEventListener('pointerdown',unlockAudio,{passive:true});
+function settingsModal(){
+ const draw=()=>{
+  const item=(key,label,desc)=>`<button type="button" class="setting-toggle" data-fx-setting="${key}" aria-pressed="${fxPrefs[key]}"><span>${label}<small style="display:block;font-weight:400;color:#6a777d;margin-top:3px">${desc}</small></span><span class="value">${fxPrefs[key]?'オン':'オフ'}</span></button>`;
+  openModal('⚙️ 演出・CPU速度',`<p>発展カード演出の表示・非表示、音・動き・CPU速度を選べます。設定は保存されます。</p>${item('sound','🔊 効果音','サイコロ・建設・交易・得点の音')}${item('motion','✨ アニメーション','資源獲得・建設・勝利演出')}${item('devEffects','🃏 発展カードの全画面演出','自分・CPUとも、使用時の大きなカード演出を表示')}${item('cpuFast','⏩ CPU手番を高速化','オフ＝建設地点をゆっくり確認 / オン＝短く表示')}<p class="sub">端末で「視差効果を減らす」設定が有効な場合、アニメーションは表示されません。音は最初の画面操作後から鳴ります。</p><section class="pwa-panel"><h3>📱 ホーム画面に追加</h3><div id="installHelp">${installHelpMarkup()}</div></section>`);
+  $('sheet').querySelectorAll('[data-fx-setting]').forEach(b=>b.onclick=()=>{const key=b.dataset.fxSetting;fxPrefs[key]=!fxPrefs[key];storeFxPreferences();if(key==='sound'&&fxPrefs.sound){unlockAudio();sound('build')}if(key==='motion'&&!fxPrefs.motion)$('fxLayer').innerHTML='';if(key==='devEffects'&&!fxPrefs.devEffects)dismissDevReveals();render();draw()});
+ };draw();
+}
+$('settingsBtn').onclick=settingsModal;
+ $('cpuSpeedBtn').onclick=()=>{fxPrefs.cpuFast=!fxPrefs.cpuFast;storeFxPreferences();render();showToast(fxPrefs.cpuFast?'⏩ CPU高速モード':'▶ CPU通常速度',900)};
+ $('levelBtn').onclick=()=>{
+  if(cpuRunning||state.current!==0||state.phase.startsWith('setup')&&state.phase!=='setup-settlement')return showToast('自分の操作中に難易度を変更できます');
+  const opts=[['easy','初級','建設の選択にばらつきがあり、交易条件もやさしめ'],['normal','標準','開拓地・都市・道を計画し、資源の価値を見て交渉'],['hard','上級','港・最長交易路を積極的に狙い、交易交渉は厳しめ']];
+  openModal('🤖 CPUの難易度',`<p>ゲーム中でも変更できます。変更は次のCPU行動から反映されます。</p><div class="difficulty-options">${opts.map(([k,n,d])=>`<button type="button" data-level="${k}" class="${state.difficulty===k?'active':''}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>`);
+  $('sheet').querySelectorAll('[data-level]').forEach(el=>el.onclick=()=>{state.difficulty=el.dataset.level;save();hideModal();render();showToast('🤖 難易度：'+el.querySelector('b').textContent)});
+ };$('restartBtn').onclick=()=>{if(cpuRunning||rolling)return showToast('CPUの手番が終わってから新規ゲームを開始できます');openModal('新しいゲームを始める？','<p>現在の進行状況は消去されます。</p><div class="row"><button class="sheetbtn secondary" id="back">戻る</button><button class="sheetbtn" id="newSure">新規ゲーム</button></div>')};
+ $('scrim').addEventListener('click',e=>{if(e.target===$('scrim')&&['📝 プレイ履歴','📖 遊び方','新しいゲームを始める？','🤝 資源の交易','🃏 発展カード','🤖 CPUの難易度','⚙️ 演出・CPU速度'].includes(modalType)||modalType.includes('の状況')||modalType.includes('の土地')||modalType.includes(' の')||modalType.includes('港'))hideModal()});
+ $('sheet').addEventListener('click',e=>{if(e.target.closest('#installAppBtn'))installApp();if(e.target.id==='back')hideModal();if(e.target.id==='newSure'){try{localStorage.removeItem('hexIslandSaveV61')}catch(e){}newGame()}});
+if(location.search.includes('test=1'))window.__hexTest={getProduction:()=>state.lastProduction,showHandModal,showPlayerInfo,visibleDevCount,getCpuSpeed:()=>fxPrefs.cpuFast,getDevEffects:()=>fxPrefs.devEffects,dismissDevReveals,setDevEffects:v=>{fxPrefs.devEffects=v;storeFxPreferences()},showDevEffect,setCpuSpeed:v=>{fxPrefs.cpuFast=v;storeFxPreferences();render()},showCpuNotice,replayCpuEvents,rollForOrder,showOrderRoll,showOrderResult,finishSetup,advanceTurn,runCpuTurns,getState:()=>state,player,legalE,legalV,placeRoad,placeSettlement,roadLength,cpuAction,cpuGoal,cpuBestRoad,cpuTrade,cpuTradeUtility,tradeModal,showRules,save,newGame,checkWinner,produce,buildingFx,roadFx,sound,confetti,settingsModal,makePorts,ownedPorts,portCoords,showPort,renderBoard,renderWallet,renderActions,validSettlement,rateFor,getPorts:()=>ports,getVerts:()=>verts,getEdges:()=>edges};
+ const DIFF_PREF_KEY='hexIslandStartDifficulty';
+ let startDifficulty='normal';
+ try{let stored=localStorage.getItem(DIFF_PREF_KEY);if(['easy','normal','hard'].includes(stored))startDifficulty=stored}catch(e){}
+ function refreshStartDifficulty(){
+  document.querySelectorAll('[data-start-level]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.startLevel===startDifficulty)));
+ }
+ document.querySelectorAll('[data-start-level]').forEach(b=>b.addEventListener('click',()=>{
+  startDifficulty=b.dataset.startLevel;
+  try{localStorage.setItem(DIFF_PREF_KEY,startDifficulty)}catch(e){}
+  refreshStartDifficulty();
+ }));
+ refreshStartDifficulty();
+ let menuHasSave=load(false);
+if(menuHasSave){if(!state.deck)initDeck();render()}
+function refreshHomeInfo(){
+ const btn=$('startContinue'),info=$('startSaveInfo');
+ btn.disabled=!menuHasSave;
+ if(menuHasSave&&state){
+  const names=['初期配置','プレイ中','対戦結果'];
+  const phase=state.winner>=0?names[2]:(state.phase==='order-roll'||state.phase==='order-result'||String(state.phase).startsWith('setup'))?names[0]:names[1];
+  info.textContent=`💾 セーブあり · ${phase} · ラウンド ${state.round||1} · ${({easy:'初級',normal:'標準',hard:'上級'}[state.difficulty]||'標準')}`;
+ }else info.textContent='まだ保存された対戦はありません';
+}
+function openHome(){
+ if(cpuRunning||rolling){showToast('CPUの手番終了後にホームへ移動できます');return}
+ refreshHomeInfo();$('startScreen').classList.remove('hidden');
+}
+function leaveHome(){$('startScreen').classList.add('hidden')}
+$('homeBtn').onclick=openHome;
+$('startOptions').onclick=settingsModal;
+$('startRecords').onclick=recordsModal;
+$('startNew').onclick=()=>{
+ const start=()=>{leaveHome();newGame(startDifficulty);menuHasSave=true};
+ if(menuHasSave){
+  openModal('新しいゲームを始める？','<p>保存中の対戦は上書きされます。今の続きからは遊べなくなります。</p><div class="row"><button class="sheetbtn secondary" id="cancelStartNew">キャンセル</button><button class="sheetbtn" id="confirmStartNew">最初から遊ぶ</button></div>',false);
+  $('cancelStartNew').onclick=hideModal;
+  $('confirmStartNew').onclick=start;
+ }else start();
+};
+$('startContinue').onclick=()=>{
+ if(!menuHasSave)return;
+ leaveHome();
+ // load with resume enabled so interrupted CPU/setup turns continue exactly once.
+ if(!load(true)){menuHasSave=false;openHome();return}
+ render();
+ if(state.winner>=0)scheduleVictory();
+};
+refreshHomeInfo();$('startScreen').classList.remove('hidden');
+ // Load check uses state created by makeBoard above; no other asset or network required.
+})();
+</script></body></html>
