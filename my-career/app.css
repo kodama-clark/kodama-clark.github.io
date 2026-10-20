@@ -46,3 +46,12 @@
 .new-jobs-section .job-list{gap:8px}
 .jump-link{display:inline-block;margin-top:15px;font-size:12px;font-weight:800}
 @media(max-width:540px){.new-jobs-section{margin-bottom:13px}.section-description{font-size:11px}}
+
+/* Clear distinction between a verified job listing and a search/related listing */
+.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.job-actions .direct-job-link{background:#087c70;color:white;border-radius:8px;padding:7px 10px;text-decoration:none;font-weight:800}
+.job-actions .direct-job-link:hover{background:#07665c}
+.job-actions .job-search-link{color:#516e81;font-weight:750;text-decoration:underline;text-underline-offset:3px}
+.job-actions .related-job-link{font-weight:800;color:#866519;text-decoration:underline;text-underline-offset:3px}
+.job-actions{flex-wrap:wrap}
+@media(max-width:540px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.job-actions .direct-job-link{font-size:11px;padding:7px 9px}.job-actions .job-search-link,.job-actions .related-job-link{font-size:11px}}
