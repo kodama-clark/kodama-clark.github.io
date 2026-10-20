@@ -54,6 +54,16 @@ function safeUrl(x){if(!x)return null;try{const u=new URL(x);return u.protocol==
 function el(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!==undefined&&text!==null)n.textContent=String(text);return n;}
 function tag(parent,text,cls=''){parent.appendChild(el('span','tag '+cls,text));}
 function addDetail(parent,label,value){if(!value)return;const span=el('span');span.append(el('b',null,label+' '),document.createTextNode(value));parent.appendChild(span);}
+function queryLink(job){
+ const corp=job.company||'';
+ const role=String(job.role||'').replace(/職種未特定|10月15日検討求人・/g,'').trim();
+ const unnamed=/非公開企業|非公開メディア系企業|非公開大手/.test(corp);
+ const keywords=(unnamed?role:corp+' '+role)+' 求人 総務 施設管理';
+ return 'https://www.google.com/search?q='+encodeURIComponent(keywords.trim());
+}
+function link(parent,href,label,css){
+ const a=el('a',css,label);a.href=href;a.target='_blank';a.rel='noopener noreferrer';parent.appendChild(a);return a;
+}
 function createJobCard(x){
   const actualRank=jobs.findIndex(j=>j.id===x.id)+1;
   const card=el('article','job'+(actualRank<=3?' top':''));
@@ -70,8 +80,12 @@ function createJobCard(x){
   const detail=el('div','job-detail');addDetail(detail,'年収',x.salary||'未確認');if(x.location)addDetail(detail,'勤務地',x.location);if(x.application_status&&x.application_status!=='未応募')addDetail(detail,'応募',x.application_status);card.appendChild(detail);
   if(x.notes)card.appendChild(el('p','job-notes',String(x.notes).slice(0,160)));
   const actions=el('div','job-actions'),url=safeUrl(x.url);
-  if(url){const link=el('a',null,x.listing?.startsWith('掲載期間終了')?'過去の求人票を見る ↗':'求人票を見る ↗');link.href=url;link.target='_blank';link.rel='noopener noreferrer';actions.appendChild(link);}
-  else actions.appendChild(el('span','no-url','求人リンク未確認'));
+  if(url){link(actions,url,x.listing?.startsWith('掲載期間終了')?'過去の求人票 ↗':'求人票を見る ↗','direct-job-link');}
+  else {
+    const related=safeUrl(x.related_job_url);
+    if(related)link(actions,related,'関連する求人票 ↗','related-job-link');
+    link(actions,queryLink(x),'求人を検索 ↗','job-search-link');
+  }
   const star=el('button','star'+(stars.has(x.id)?' saved':''),stars.has(x.id)?'★':'☆');
   star.type='button';star.setAttribute('aria-label',stars.has(x.id)?'お気に入りを解除':'お気に入りに追加');star.setAttribute('aria-pressed',stars.has(x.id)?'true':'false');
   star.addEventListener('click',()=>{if(stars.has(x.id))stars.delete(x.id);else stars.add(x.id);storeStars();render();});
@@ -82,6 +96,7 @@ function createJobCard(x){
 }
 function render(){
  $('countAll').textContent=jobs.length+'件';
+ $('countLinks').textContent=jobs.filter(x=>safeUrl(x.url)).length+'件';
  $('bestScore').textContent=jobs.length?Math.max(...jobs.map(x=>x.score||0))+'点':'—';
  const recent=jobs.filter(isRecent).sort((a,b)=>(dateFromJob(b)?.getTime()||0)-(dateFromJob(a)?.getTime()||0)||(b.score||0)-(a.score||0));
  $('recentCount').textContent=recent.length+'件';
