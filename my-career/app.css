@@ -64,3 +64,10 @@
 .job-salary.unverified{background:#f2f5f6;color:#607888}
 .job-salary.unverified .salary-amount{font-size:14px}
 @media(max-width:540px){.job-salary{padding:9px 10px;margin:7px 0 9px}.salary-amount{font-size:16px}.salary-source{font-size:9px}}
+
+/* Device-login choices */
+.remember-choice{display:block;margin-top:14px;font-size:12px;font-weight:800;color:var(--ink)}
+.remember-select{display:block;width:100%;margin-top:8px;padding:11px 12px;border:1px solid #cfdddf;border-radius:11px;background:#f7faf9;color:var(--ink);font-size:13px}
+.remember-notice{margin:8px 0 14px;color:var(--mute);font-size:11px;line-height:1.6}
+#forgetTokenBtn{margin-top:10px;font-size:11px}
+#saveDeviceBtn{background:#e7f5f0;border-color:#95c8bf;color:#077367}
