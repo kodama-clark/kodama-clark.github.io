@@ -8,6 +8,8 @@ const DEVICE_TOKEN_KEY='mycareer-v2-device-token';
 const STARS_KEY='mycareer-v2-stars';
 const $=id=>document.getElementById(id);
 let token='',jobs=[],loadedAt=null,busy=false,rawData=null,blobSha='',editingId=null,saving=false;
+const PAGE_SIZE=10;
+let activeTab='new',newPage=1,rankPage=1;
 let stars=new Set();
 try{const saved=JSON.parse(localStorage.getItem(STARS_KEY)||'[]');if(Array.isArray(saved))stars=new Set(saved.filter(x=>typeof x==='string'));}catch(_){}
 function storeStars(){try{localStorage.setItem(STARS_KEY,JSON.stringify([...stars]));}catch(_){}}
@@ -108,7 +110,7 @@ function createJobCard(x){
   if(x.salary_verified_at)salaryLine.appendChild(el('small','salary-source','求人票確認 '+x.salary_verified_at));
   card.appendChild(salaryLine);
   const detail=el('div','job-detail');if(x.location)addDetail(detail,'勤務地',x.location);if(x.application_status&&x.application_status!=='未応募')addDetail(detail,'応募',x.application_status);card.appendChild(detail);
-  if(x.notes)card.appendChild(el('p','job-notes',String(x.notes).slice(0,160)));
+  if(x.notes){const details=el('details','job-notes-details');details.append(el('summary','job-notes-summary','評価メモを読む'),el('p','job-notes',String(x.notes)));card.appendChild(details);}
   const actions=el('div','job-actions'),url=safeUrl(x.url);
   if(url){link(actions,url,x.listing?.startsWith('掲載期間終了')?'過去の求人票 ↗':'求人票を見る ↗','direct-job-link');}
   else {
@@ -124,17 +126,30 @@ function createJobCard(x){
   card.appendChild(actions);
   return card;
 }
-function render(){
- $('countAll').textContent=jobs.length+'件';
- $('countLinks').textContent=jobs.filter(x=>safeUrl(x.url)).length+'件';
- $('bestScore').textContent=jobs.length?Math.max(...jobs.map(x=>x.score||0))+'点':'—';
- const recent=jobs.filter(isRecent).sort((a,b)=>(dateFromJob(b)?.getTime()||0)-(dateFromJob(a)?.getTime()||0)||(b.score||0)-(a.score||0));
- $('recentCount').textContent=recent.length+'件';
- $('newJobsSection').hidden=recent.length===0;
- $('newJobCount').textContent=recent.length+'件';
- const latest=document.createDocumentFragment();
- for(const x of recent.slice(0,25))latest.appendChild(createJobCard(x));
- $('newJobList').replaceChildren(latest);
+function clampPage(page,count){return Math.min(Math.max(1,page),Math.max(1,Math.ceil(count/PAGE_SIZE)));}
+function renderPagination(prefix,page,count){
+ const pages=Math.max(1,Math.ceil(count/PAGE_SIZE));
+ $(prefix+'Pagination').hidden=count<=PAGE_SIZE;
+ $(prefix+'PageStatus').textContent=page+' / '+pages+'ページ';
+ $(prefix+'PrevPage').disabled=page<=1;
+ $(prefix+'NextPage').disabled=page>=pages;
+}
+function applyTabState(){
+ const isNew=activeTab==='new';
+ $('newJobsSection').hidden=!isNew;
+ $('rankingSection').hidden=isNew;
+ for(const [id,selected] of [['showNewJobs',isNew],['showTopJobs',!isNew]]){
+   $(id).classList.toggle('is-active',selected);
+   $(id).setAttribute('aria-selected',String(selected));
+   $(id).tabIndex=selected?0:-1;
+ }
+}
+function switchTab(tab){
+ if(tab!=='new'&&tab!=='top')return;
+ activeTab=tab;render();
+ $('listTabs').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+}
+function getFilteredRanking(){
  const view=$('viewFilter').value,min=Number($('minFilter').value),q=$('searchInput').value.trim().toLocaleLowerCase(),salaryFilter=$('salaryFilter').value;
  let filtered=(view==='top50'?jobs.slice(0,50):jobs).filter(x=>(x.score||0)>=min);
  if(salaryFilter!=='all')filtered=filtered.filter(x=>{
@@ -149,11 +164,37 @@ function render(){
  if(view==='recent')filtered=filtered.filter(isRecent);
  if(view==='starred')filtered=filtered.filter(x=>stars.has(x.id));
  if(q)filtered=filtered.filter(x=>(x.company+' '+x.role+' '+x.location+' '+x.salary).toLocaleLowerCase().includes(q));
+ return filtered;
+}
+function stepPage(which,delta){
+ if(which==='new')newPage=clampPage(newPage+delta,jobs.filter(isRecent).length);
+ else rankPage=clampPage(rankPage+delta,getFilteredRanking().length);
+ render();
+ $(which==='new'?'newJobsSection':'rankingSection').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+}
+function render(){
+ $('countAll').textContent=jobs.length+'件';
+ $('countLinks').textContent=jobs.filter(x=>safeUrl(x.url)).length+'件';
+ $('bestScore').textContent=jobs.length?Math.max(...jobs.map(x=>x.score||0))+'点':'—';
+ const recent=jobs.filter(isRecent).sort((a,b)=>(dateFromJob(b)?.getTime()||0)-(dateFromJob(a)?.getTime()||0)||(b.score||0)-(a.score||0));
+ $('recentCount').textContent=recent.length+'件';
+ $('newTabCount').textContent=recent.length;
+ $('newJobCount').textContent=recent.length+'件';
+ newPage=clampPage(newPage,recent.length);
+ const latest=document.createDocumentFragment();
+ for(const x of recent.slice((newPage-1)*PAGE_SIZE,newPage*PAGE_SIZE))latest.appendChild(createJobCard(x));
+ $('newJobList').replaceChildren(latest);
+ $('newEmptyMessage').hidden=recent.length>0;
+ renderPagination('new',newPage,recent.length);
+ const filtered=getFilteredRanking();
  $('visibleCount').textContent=filtered.length+'件';
  $('emptyMessage').hidden=filtered.length>0;
+ rankPage=clampPage(rankPage,filtered.length);
  const frag=document.createDocumentFragment();
- for(const x of filtered)frag.appendChild(createJobCard(x));
+ for(const x of filtered.slice((rankPage-1)*PAGE_SIZE,rankPage*PAGE_SIZE))frag.appendChild(createJobCard(x));
  $('jobList').replaceChildren(frag);
+ renderPagination('rank',rankPage,filtered.length);
+ applyTabState();
 }
 
 function editValue(id,value){$(id).value=value===null||value===undefined?'':String(value);}
@@ -286,7 +327,20 @@ $('closeEditBtn').addEventListener('click',closeEditor);
 $('cancelEditBtn').addEventListener('click',closeEditor);
 $('editForm').addEventListener('submit',saveEditor);
 $('editDialog').addEventListener('cancel',e=>{if(saving)e.preventDefault();});
-for(const id of ['searchInput','viewFilter','minFilter','salaryFilter'])$(id).addEventListener(id==='searchInput'?'input':'change',render);
+for(const id of ['searchInput','viewFilter','minFilter','salaryFilter'])$(id).addEventListener(id==='searchInput'?'input':'change',()=>{rankPage=1;render();});
+$('showNewJobs').addEventListener('click',()=>switchTab('new'));
+$('showTopJobs').addEventListener('click',()=>switchTab('top'));
+$('newPrevPage').addEventListener('click',()=>stepPage('new',-1));
+$('newNextPage').addEventListener('click',()=>stepPage('new',1));
+$('rankPrevPage').addEventListener('click',()=>stepPage('rank',-1));
+$('rankNextPage').addEventListener('click',()=>stepPage('rank',1));
+$('listTabs').addEventListener('keydown',event=>{
+ if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;
+ event.preventDefault();
+ const next=event.key==='ArrowRight'?'top':'new';
+ switchTab(next);
+ $(next==='top'?'showTopJobs':'showNewJobs').focus();
+});
 // Refresh on return to the app so new morning GitHub data can appear without manual copy.
 document.addEventListener('visibilitychange',()=>{
  if(document.visibilityState==='visible' && token && !busy && !saving && !$('editDialog').open &&
