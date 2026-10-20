@@ -37,3 +37,12 @@
 .edit-dialog .feedback{min-height:18px;line-height:1.7}
 .edit-dialog .privacy-note{border-top:1px solid var(--line);padding-top:13px}
 @media(max-width:540px){.results-head-actions{gap:6px}.add-job-btn{padding:7px 8px;font-size:11px}.edit-dialog{padding:16px;width:calc(100% - 18px)}.edit-grid{gap:11px}.edit-grid label{font-size:11px}.edit-grid input,.edit-grid select,.edit-grid textarea{font-size:13px;padding:10px 8px}.edit-controls .save-btn{min-width:155px}.job-notes{font-size:11px}}
+
+/* Newly added feed first */
+.new-jobs-section{margin-bottom:18px;border-color:#b2dcd6;background:linear-gradient(145deg,#fff,#f5fbf9)}
+.section-description{font-size:12px;line-height:1.75;color:#607888;margin:0 0 14px}
+.section-description b{color:#325a69}
+.new-jobs-section .job{background:#fff}
+.new-jobs-section .job-list{gap:8px}
+.jump-link{display:inline-block;margin-top:15px;font-size:12px;font-weight:800}
+@media(max-width:540px){.new-jobs-section{margin-bottom:13px}.section-description{font-size:11px}}
