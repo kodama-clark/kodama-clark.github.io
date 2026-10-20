@@ -9,9 +9,9 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; script-src 'self'; worker-src 'self'; style-src 'self'; img-src 'self' data:; manifest-src 'self'; connect-src https://api.github.com; font-src 'none'">
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./app.css?v=20261020-3">
+<link rel="stylesheet" href="./app.css?v=20261020-5">
 <title>My Career V2｜非公開求人ランキング</title>
-<script src="./app.js?v=20261020-3" defer></script>
+<script src="./app.js?v=20261020-5" defer></script>
 </head>
 <body>
 <header class="header">
@@ -58,13 +58,22 @@
       <div class="stat"><span>7日以内の登録</span><strong id="recentCount">—</strong><small>確認済み掲載とは別</small></div>
       <div class="stat"><span>求人票リンク</span><strong id="countLinks">—</strong><small>個別求人票を登録</small></div>
     </section>
-    <section class="panel new-jobs-section" id="newJobsSection" hidden>
+    <nav id="listTabs" class="list-tabs" role="tablist" aria-label="求人一覧の切り替え">
+      <button type="button" id="showNewJobs" class="list-tab is-active" role="tab" aria-selected="true" aria-controls="newJobsSection">🆕 新着求人 <span id="newTabCount" class="tab-count">0</span></button>
+      <button type="button" id="showTopJobs" class="list-tab" role="tab" aria-selected="false" aria-controls="rankingSection" tabindex="-1">🏆 TOP50</button>
+    </nav>
+    <section class="panel new-jobs-section" id="newJobsSection" role="tabpanel" aria-labelledby="showNewJobs">
       <div class="section-head"><div><div class="eyebrow">NEWLY ADDED</div><h2>🆕 最近追加された求人</h2></div><span id="newJobCount" class="count-pill">0件</span></div>
       <p class="section-description">過去7日間にランキングへ新しく登録した候補を、追加日が新しい順に表示。<b>新規掲載・募集中であることを保証するものではありません。</b></p>
       <div id="newJobList" class="job-list"></div>
-      <a class="jump-link" href="#rankingSection">↓ 累積TOP50を見る</a>
+      <p id="newEmptyMessage" class="empty-message" hidden>過去7日間に追加した求人はありません。「TOP50」で累積ランキングを確認できます。</p>
+      <div id="newPagination" class="pagination" aria-label="新着求人のページ切り替え" hidden>
+        <button id="newPrevPage" type="button" class="page-btn">← 前へ</button>
+        <span id="newPageStatus" class="page-status" aria-live="polite">1 / 1ページ</span>
+        <button id="newNextPage" type="button" class="page-btn">次へ →</button>
+      </div>
     </section>
-    <section class="panel results" id="rankingSection">
+    <section class="panel results" id="rankingSection" role="tabpanel" aria-labelledby="showTopJobs" hidden>
       <div class="section-head"><div><div class="eyebrow">YOUR SHORTLIST</div><h2>累積求人ランキング</h2></div><div class="results-head-actions"><span id="visibleCount" class="count-pill">0件</span><button id="addJobBtn" type="button" class="add-job-btn">＋ 求人追加</button></div></div>
       <div class="controls">
         <label class="search-wrap"><span class="sr-only">会社名・職種・年収で検索</span><input id="searchInput" type="search" placeholder="会社名・職種・年収で検索…" autocomplete="off"></label>
@@ -75,6 +84,11 @@
         </div>
       </div>
       <div id="jobList" class="job-list" aria-live="polite"></div>
+      <div id="rankPagination" class="pagination" aria-label="ランキングのページ切り替え" hidden>
+        <button id="rankPrevPage" type="button" class="page-btn">← 前へ</button>
+        <span id="rankPageStatus" class="page-status" aria-live="polite">1 / 1ページ</span>
+        <button id="rankNextPage" type="button" class="page-btn">次へ →</button>
+      </div>
       <p id="emptyMessage" class="empty-message" hidden>条件に一致する求人はありません。</p>
       <p id="dashFeedback" class="feedback" role="status"></p>
       <p class="footnote">年収は求人票等に記載された想定額です。上限が650万円以上でも、その金額で採用される保証はありません。賞与・残業手当の算入条件は求人票を確認してください。金額未確認の求人は「未確認」と表示します。点数は過去の暫定評価です。「未確認」は応募可能を意味しません。同一企業の異なる求人や未照合の候補を含みます。</p>
