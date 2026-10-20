@@ -32,9 +32,12 @@
     <div class="panel-heading"><span class="round-icon">🔑</span><div><h2>GitHubに安全に接続</h2><p>求人データはこのページには公開されません</p></div></div>
     <label for="tokenInput">GitHubのアクセストークン</label>
     <input id="tokenInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_...">
-    <label class="remember"><input id="rememberSession" type="checkbox" checked> このタブを開いている間だけトークンを記憶</label>
+    <label class="remember-choice" for="rememberMode">次回の接続方法</label>
+    <select id="rememberMode" class="remember-select"><option value="session">このタブを閉じるまで記憶</option><option value="device">この端末で記憶（次回から自動接続）</option><option value="none">保存しない</option></select>
+    <p class="remember-notice">端末に記憶すると認証情報がブラウザに保存されます。共用端末では使わないでください。</p>
     <button class="primary" id="connectBtn" type="button">非公開求人を読み込む <span aria-hidden="true">→</span></button>
     <p id="authMessage" class="feedback" role="status"></p>
+    <button type="button" id="forgetTokenBtn" class="subtle-btn">古い保存トークンを削除</button>
     <details class="setup">
       <summary>初回設定：トークンの作り方</summary>
       <ol>
@@ -44,11 +47,11 @@
         <li>生成されたトークンをコピーし、上の欄に貼り付ける。トークンをチャットや公開ページに投稿しないでください。</li>
       </ol>
     </details>
-    <p class="privacy-note">このページに求人データ・トークンは埋め込まれていません。入力したトークンはGitHub APIとの通信にのみ使用します。編集時は非公開リポジトリへの書き込みに使用します。トークンはこのサイト側のサーバーには送信せず、求人データはブラウザー保存しません。書き込み権限付きトークンの取扱いには十分注意してください。</p>
+    <p class="privacy-note">このページに求人データ・トークンは埋め込まれていません。入力したトークンはGitHub APIとの通信にのみ使用します。編集時は非公開リポジトリへの書き込みに使用します。「この端末で記憶」を選ぶとトークンはブラウザのlocalStorageに保存されます。共有端末では利用せず、求人データはブラウザー保存しません。書き込み権限付きトークンの取扱いには十分注意してください。</p>
   </section>
 
   <div id="dashboard" hidden>
-    <div class="toolbar"><div id="lastLoaded" class="small-status" role="status">未接続</div><div class="toolbar-actions"><button type="button" id="refreshBtn" class="subtle-btn">↻ 再取得</button><button type="button" id="disconnectBtn" class="subtle-btn">切断</button></div></div>
+    <div class="toolbar"><div id="lastLoaded" class="small-status" role="status">未接続</div><div class="toolbar-actions"><button type="button" id="refreshBtn" class="subtle-btn">↻ 再取得</button><button type="button" id="saveDeviceBtn" class="subtle-btn" hidden>この端末で記憶</button><button type="button" id="disconnectBtn" class="subtle-btn">切断</button></div></div>
     <section class="stats" aria-label="統計情報">
       <div class="stat"><span>登録求人</span><strong id="countAll">—</strong><small>累積候補</small></div>
       <div class="stat"><span>最高適合度</span><strong id="bestScore">—</strong><small>100点満点</small></div>
