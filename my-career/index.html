@@ -64,16 +64,17 @@
     <section class="panel results" id="rankingSection">
       <div class="section-head"><div><div class="eyebrow">YOUR SHORTLIST</div><h2>累積求人ランキング</h2></div><div class="results-head-actions"><span id="visibleCount" class="count-pill">0件</span><button id="addJobBtn" type="button" class="add-job-btn">＋ 求人追加</button></div></div>
       <div class="controls">
-        <label class="search-wrap"><span class="sr-only">会社名や職種で検索</span><input id="searchInput" type="search" placeholder="会社名・職種で検索…" autocomplete="off"></label>
+        <label class="search-wrap"><span class="sr-only">会社名・職種・年収で検索</span><input id="searchInput" type="search" placeholder="会社名・職種・年収で検索…" autocomplete="off"></label>
         <div class="filter-row">
           <label>表示 <select id="viewFilter"><option value="top50">TOP50</option><option value="all">全件</option><option value="recent">7日以内の更新</option><option value="starred">お気に入り</option></select></label>
           <label>最低点 <select id="minFilter"><option value="0">すべて</option><option value="60">60点以上</option><option value="70">70点以上</option><option value="80">80点以上</option><option value="85">85点以上</option></select></label>
+          <label>年収 <select id="salaryFilter"><option value="all">すべて</option><option value="ceiling650">上限650万円以上</option><option value="floor600">下限600万円以上</option><option value="floor650">下限650万円以上</option><option value="unknown">年収未確認</option></select></label>
         </div>
       </div>
       <div id="jobList" class="job-list" aria-live="polite"></div>
       <p id="emptyMessage" class="empty-message" hidden>条件に一致する求人はありません。</p>
       <p id="dashFeedback" class="feedback" role="status"></p>
-      <p class="footnote">点数は過去の暫定評価です。「未確認」は応募可能を意味しません。同一企業の異なる求人や未照合の候補を含みます。</p>
+      <p class="footnote">年収は求人票等に記載された想定額です。上限が650万円以上でも、その金額で採用される保証はありません。賞与・残業手当の算入条件は求人票を確認してください。金額未確認の求人は「未確認」と表示します。点数は過去の暫定評価です。「未確認」は応募可能を意味しません。同一企業の異なる求人や未照合の候補を含みます。</p>
     </section>
   </div>
   <dialog id="editDialog" class="edit-dialog" aria-labelledby="editHeading">
@@ -86,7 +87,7 @@
         <label>適合度（0〜100） <input id="editScore" type="number" required min="0" max="100" step="1" inputmode="numeric"></label>
         <label>募集状況 <select id="editListing"><option>未確認</option><option>募集中</option><option>募集終了</option></select></label>
         <label>応募状況 <select id="editApplication"><option>未応募</option><option>検討中</option><option>応募予定</option><option>応募済み</option><option>選考中</option><option>面接予定</option><option>内定</option><option>不採用</option><option>辞退</option></select></label>
-        <label>年収 <input id="editSalary" maxlength="100" placeholder="例：600〜750万円"></label>
+        <label>想定年収 <input id="editSalary" maxlength="100" placeholder="例：600〜750万円（求人票記載）"></label>
         <label class="full">勤務地 <input id="editLocation" maxlength="160" placeholder="例：東京都港区"></label>
         <label class="full">求人URL <input id="editUrl" type="url" maxlength="2048" inputmode="url" placeholder="https://..."></label>
         <label class="full">自分のメモ <textarea id="editNotes" rows="4" maxlength="5000" placeholder="応募前に確認したいこと、面接の感想など"></textarea></label>
