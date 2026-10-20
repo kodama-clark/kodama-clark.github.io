@@ -65,11 +65,12 @@ function createJobCard(x){
   if(x.origin==='2026-10-20_daily_report')tag(tags,'10/20追加');
   tag(tags,x.listing||'未確認',x.listing==='募集中'?'new':'warn');
   if(Array.isArray(x.possible_duplicate_with)&&x.possible_duplicate_with.length)tag(tags,'重複要照合','warn');
+  if(x.condition_alert)tag(tags,x.condition_alert,'warn');
   card.appendChild(tags);
   const detail=el('div','job-detail');addDetail(detail,'年収',x.salary||'未確認');if(x.location)addDetail(detail,'勤務地',x.location);if(x.application_status&&x.application_status!=='未応募')addDetail(detail,'応募',x.application_status);card.appendChild(detail);
   if(x.notes)card.appendChild(el('p','job-notes',String(x.notes).slice(0,160)));
   const actions=el('div','job-actions'),url=safeUrl(x.url);
-  if(url){const link=el('a',null,'求人を見る ↗');link.href=url;link.target='_blank';link.rel='noopener noreferrer';actions.appendChild(link);}
+  if(url){const link=el('a',null,x.listing?.startsWith('掲載期間終了')?'過去の求人票を見る ↗':'求人票を見る ↗');link.href=url;link.target='_blank';link.rel='noopener noreferrer';actions.appendChild(link);}
   else actions.appendChild(el('span','no-url','求人リンク未確認'));
   const star=el('button','star'+(stars.has(x.id)?' saved':''),stars.has(x.id)?'★':'☆');
   star.type='button';star.setAttribute('aria-label',stars.has(x.id)?'お気に入りを解除':'お気に入りに追加');star.setAttribute('aria-pressed',stars.has(x.id)?'true':'false');
