@@ -1,5 +1,5 @@
 /* App shell only. Never cache private GitHub API data. */
-const CACHE='mycareer-shell-v2';
+const CACHE='mycareer-shell-v3';
 const SHELL=['./','./index.html','./app.css','./app.js','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',event=>{
  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
