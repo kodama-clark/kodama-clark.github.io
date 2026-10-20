@@ -55,3 +55,12 @@
 .job-actions .related-job-link{font-weight:800;color:#866519;text-decoration:underline;text-underline-offset:3px}
 .job-actions{flex-wrap:wrap}
 @media(max-width:540px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.job-actions .direct-job-link{font-size:11px;padding:7px 9px}.job-actions .job-search-link,.job-actions .related-job-link{font-size:11px}}
+
+/* Salary is a primary decision factor: show it independently of location / status. */
+.job-salary{display:flex;align-items:baseline;gap:5px 11px;flex-wrap:wrap;padding:10px 12px;margin:8px 0 10px;background:#eaf6f2;border-radius:10px;color:#135b50}
+.salary-label{font-size:11px;font-weight:800;color:#457268}
+.salary-amount{font-size:17px;font-weight:900;line-height:1.35;font-variant-numeric:tabular-nums;letter-spacing:-.015em}
+.salary-source{font-size:10px;color:#637e76;margin-left:auto}
+.job-salary.unverified{background:#f2f5f6;color:#607888}
+.job-salary.unverified .salary-amount{font-size:14px}
+@media(max-width:540px){.job-salary{padding:9px 10px;margin:7px 0 9px}.salary-amount{font-size:16px}.salary-source{font-size:9px}}
