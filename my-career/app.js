@@ -17,13 +17,13 @@ function deviceToken(){try{return localStorage.getItem(DEVICE_TOKEN_KEY)||'';}ca
 function saveDevice(value){try{if(value)localStorage.setItem(DEVICE_TOKEN_KEY,value);else localStorage.removeItem(DEVICE_TOKEN_KEY);return true;}catch(_){return false;}}
 function forgetStoredTokens(){saveSession('');saveDevice('');}
 function storeToken(secret){
- const mode=$('rememberMode').value;
+ const mode=$('rememberMode')?.value||($('rememberSession')?.checked?'session':'none');
  if(mode==='device'){if(!saveDevice(secret))return false;saveSession('');}
  else if(mode==='session'){saveSession(secret);saveDevice('');}
  else forgetStoredTokens();
  return true;
 }
-function updateDeviceButton(){const btn=$('saveDeviceBtn');btn.hidden=!token||deviceToken()===token;}
+function updateDeviceButton(){const btn=$('saveDeviceBtn');if(btn)btn.hidden=!token||deviceToken()===token;}
 function message(s){$('authMessage').textContent=s;}
 function setBusy(value){busy=value;$('connectBtn').disabled=value;$('refreshBtn').disabled=value;$('connectBtn').firstChild.textContent=value?'読み込み中… ':'非公開求人を読み込む ';}
 function localDate(d){return new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d);}
@@ -66,13 +66,13 @@ async function connect(secret){
    if(sessionToken()===secret)saveSession('');
    if(deviceToken()===secret)saveDevice('');
    if(token===secret){token='';jobs=[];rawData=null;blobSha='';loadedAt=null;$('dashboard').hidden=true;$('authPanel').hidden=false;}
-   $('rememberMode').value='session';
+   if($('rememberMode'))$('rememberMode').value='session';
    updateDeviceButton();
   }
   message(e&&e.message?e.message:'接続できませんでした。');
  }finally{setBusy(false);}
 }
-function disconnect(){token='';jobs=[];rawData=null;blobSha='';loadedAt=null;forgetStoredTokens();$('rememberMode').value='session';$('dashboard').hidden=true;$('authPanel').hidden=false;$('tokenInput').value='';updateDeviceButton();message('接続を解除し、保存されたトークンを削除しました。');}
+function disconnect(){token='';jobs=[];rawData=null;blobSha='';loadedAt=null;forgetStoredTokens();if($('rememberMode'))$('rememberMode').value='session';$('dashboard').hidden=true;$('authPanel').hidden=false;$('tokenInput').value='';updateDeviceButton();message('接続を解除し、保存されたトークンを削除しました。');}
 function safeUrl(x){if(!x)return null;try{const u=new URL(x);return u.protocol==='https:'?u.href:null;}catch(_){return null;}}
 function el(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!==undefined&&text!==null)n.textContent=String(text);return n;}
 function tag(parent,text,cls=''){parent.appendChild(el('span','tag '+cls,text));}
@@ -240,7 +240,7 @@ async function saveEditor(event){
 function mountTokenControls(){
  // Keep the private GitHub page compatible without needing public HTML data.
  const old=$('rememberSession');
- if(old){
+ if(old&&!$('rememberMode')){
   const wrap=old.closest('label'),holder=el('div','filter-row token-options');
   const label=el('label',null,'次回の接続 ');
   const select=el('select');select.id='rememberMode';
@@ -252,10 +252,14 @@ function mountTokenControls(){
   const warning=el('p','privacy-note','端末に記憶するとトークンがブラウザ内に保存されます。共用端末では選ばないでください。有効期限が切れたら再登録が必要です。');
   holder.after(warning);
  }
- const reset=el('button','subtle-btn','古い保存トークンを削除');reset.id='forgetTokenBtn';reset.type='button';
- $('authMessage').after(reset);
- const remember=el('button','subtle-btn','この端末で記憶');remember.id='saveDeviceBtn';remember.type='button';remember.hidden=true;
- $('disconnectBtn').before(remember);
+ if(!$('forgetTokenBtn')){
+  const reset=el('button','subtle-btn','古い保存トークンを削除');reset.id='forgetTokenBtn';reset.type='button';
+  $('authMessage').after(reset);
+ }
+ if(!$('saveDeviceBtn')){
+  const remember=el('button','subtle-btn','この端末で記憶');remember.id='saveDeviceBtn';remember.type='button';remember.hidden=true;
+  $('disconnectBtn').before(remember);
+ }
  const privacy=$('authPanel').querySelector('.privacy-note:last-child');
  if(privacy)privacy.textContent='このサイトの公開ファイルにはトークンと求人情報を埋め込みません。端末に保存したトークンはブラウザのlocalStorageに保管され、暗号化されません。同一サイト上のスクリプトや端末利用者が読み取れる可能性があります。GitHubトークンの権限は最小限にし、共用端末では保存しないでください。求人データ自体はブラウザに保存しません。';
 }
@@ -266,7 +270,7 @@ $('tokenInput').addEventListener('keydown',e=>{if(e.key==='Enter')connect($('tok
 $('refreshBtn').addEventListener('click',()=>{if(token)connect(token);else disconnect();});
 $('disconnectBtn').addEventListener('click',disconnect);
 $('forgetTokenBtn').addEventListener('click',()=>{
- forgetStoredTokens();$('tokenInput').value='';$('rememberMode').value='session';
+ forgetStoredTokens();$('tokenInput').value='';if($('rememberMode'))$('rememberMode').value='session';
  message('保存された古いトークンを削除しました。新しいトークンで接続できます。');
 });
 $('saveDeviceBtn').addEventListener('click',()=>{
@@ -290,6 +294,6 @@ document.addEventListener('visibilitychange',()=>{
 });
 if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 const savedDevice=deviceToken(),savedSession=sessionToken();
-if(savedDevice){$('rememberMode').value='device';connect(savedDevice);}
-else if(savedSession){$('rememberMode').value='session';connect(savedSession);}
+if(savedDevice){if($('rememberMode'))$('rememberMode').value='device';connect(savedDevice);}
+else if(savedSession){if($('rememberMode'))$('rememberMode').value='session';connect(savedSession);}
 })();
