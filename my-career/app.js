@@ -20,7 +20,7 @@ function isRecent(job){const d=dateFromJob(job);if(!d)return false;const now=Dat
 function sortJobs(arr){return arr.map((x,i)=>({...x,__position:i})).sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)||a.__position-b.__position);}
 function cleanJobs(data){if(!data||!Array.isArray(data.jobs))throw Error('jobs.json の形式が違います。');return sortJobs(data.jobs.filter(x=>x&&typeof x.company==='string').map((x,i)=>({...x,id:String(x.id||'job-'+i),score:Number.isFinite(Number(x.score))?Number(x.score):null,company:String(x.company||''),role:String(x.role||''),salary:String(x.salary||''),location:String(x.location||''),listing:String(x.listing||'未確認'),url:String(x.url||'')})));}
 async function getPrivateData(secret){
- const res=await fetch(API,{method:'GET',headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+secret,'X-GitHub-Api-Version':'2022-11-28'},cache:'no-store',credentials:'omit',redirect:'error'});
+ const res=await fetch(API,{method:'GET',headers:{'Accept':'application/vnd.github+json','Authorization':'Bearer '+secret},cache:'no-store',credentials:'omit',redirect:'error'});
  if(!res.ok){
   if(res.status===401)throw Error('トークンが無効または期限切れです。再発行してください。');
   if(res.status===403)throw Error('アクセス権限またはAPIの利用制限を確認してください。Contents: Read-onlyが必要です。');
