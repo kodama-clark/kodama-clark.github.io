@@ -237,6 +237,30 @@ async function saveEditor(event){
  finally{saving=false;$('saveEditBtn').disabled=false;$('cancelEditBtn').disabled=false;$('closeEditBtn').disabled=false;}
 }
 
+function mountTokenControls(){
+ // Keep the private GitHub page compatible without needing public HTML data.
+ const old=$('rememberSession');
+ if(old){
+  const wrap=old.closest('label'),holder=el('div','filter-row token-options');
+  const label=el('label',null,'次回の接続 ');
+  const select=el('select');select.id='rememberMode';
+  for(const [value,title] of [['session','このタブのみ'],['device','この端末で記憶（自動接続）'],['none','保存しない']]){
+   const opt=el('option',null,title);opt.value=value;select.appendChild(opt);
+  }
+  label.appendChild(select);holder.appendChild(label);
+  wrap.replaceWith(holder);
+  const warning=el('p','privacy-note','端末に記憶するとトークンがブラウザ内に保存されます。共用端末では選ばないでください。有効期限が切れたら再登録が必要です。');
+  holder.after(warning);
+ }
+ const reset=el('button','subtle-btn','古い保存トークンを削除');reset.id='forgetTokenBtn';reset.type='button';
+ $('authMessage').after(reset);
+ const remember=el('button','subtle-btn','この端末で記憶');remember.id='saveDeviceBtn';remember.type='button';remember.hidden=true;
+ $('disconnectBtn').before(remember);
+ const privacy=$('authPanel').querySelector('.privacy-note:last-child');
+ if(privacy)privacy.textContent='このサイトの公開ファイルにはトークンと求人情報を埋め込みません。端末に保存したトークンはブラウザのlocalStorageに保管され、暗号化されません。同一サイト上のスクリプトや端末利用者が読み取れる可能性があります。GitHubトークンの権限は最小限にし、共用端末では保存しないでください。求人データ自体はブラウザに保存しません。';
+}
+mountTokenControls();
+
 $('connectBtn').addEventListener('click',()=>connect($('tokenInput').value.trim()));
 $('tokenInput').addEventListener('keydown',e=>{if(e.key==='Enter')connect($('tokenInput').value.trim());});
 $('refreshBtn').addEventListener('click',()=>{if(token)connect(token);else disconnect();});
