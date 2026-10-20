@@ -65,6 +65,22 @@
 .job-salary.unverified .salary-amount{font-size:14px}
 @media(max-width:540px){.job-salary{padding:9px 10px;margin:7px 0 9px}.salary-amount{font-size:16px}.salary-source{font-size:9px}}
 
+/* New jobs and TOP50: two distinct tabs with pagination and collapsible notes. */
+.list-tabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:0 0 14px;scroll-margin-top:12px}
+.list-tab{border:1px solid #cfdfe0;background:#e9eff1;color:#607887;border-radius:13px;padding:14px 8px;font-size:14px;font-weight:900;text-align:center;min-height:50px}
+.list-tab.is-active{background:#fff;color:#086f64;border-color:#91cec2;box-shadow:inset 0 -3px 0 #0b877a}
+.tab-count{display:inline-block;background:#dff3ed;color:#11685c;border-radius:99px;padding:1px 7px;margin-left:5px;font-size:11px}
+.pagination{display:flex;align-items:center;justify-content:center;gap:14px;margin:20px 0 3px}
+.page-btn{min-width:84px;min-height:39px;border:1px solid #bcdad6;background:#ebf7f3;color:#116e65;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:850}
+.page-btn:disabled{opacity:.42;cursor:default}
+.page-status{font-size:12px;font-weight:750;color:#607888;font-variant-numeric:tabular-nums;white-space:nowrap}
+.new-jobs-section,.results{scroll-margin-top:14px}
+.job-notes-details{margin:10px 0 0;border-radius:9px;background:#f5f9f9}
+.job-notes-summary{cursor:pointer;color:#277367;font-size:12px;font-weight:850;padding:10px 12px;list-style-position:inside}
+.job-notes-details[open] .job-notes-summary{border-bottom:1px solid #e0eae9}
+.job-notes-details .job-notes{margin:0;padding:11px 12px;border-left:0;background:transparent;white-space:pre-wrap}
+@media(max-width:540px){.list-tab{padding:12px 6px;font-size:13px}.pagination{gap:9px}.page-btn{min-width:77px;padding:8px 9px}}
+
 /* Device-login choices */
 .remember-choice{display:block;margin-top:14px;font-size:12px;font-weight:800;color:var(--ink)}
 .remember-select{display:block;width:100%;margin-top:8px;padding:11px 12px;border:1px solid #cfdddf;border-radius:11px;background:#f7faf9;color:var(--ink);font-size:13px}
