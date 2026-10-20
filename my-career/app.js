@@ -17,6 +17,7 @@ function setBusy(value){busy=value;$('connectBtn').disabled=value;$('refreshBtn'
 function localDate(d){return new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(d);}
 function dateFromJob(job){const date=job.first_seen_at||job.created_at||job.score_date||'';if(typeof date!=='string'||!date)return null;const d=new Date(/^\d{4}-\d{2}-\d{2}$/.test(date)?date+'T00:00:00+09:00':date);return Number.isNaN(d.getTime())?null:d;}
 function isRecent(job){const d=dateFromJob(job);if(!d)return false;const now=Date.now(),diff=now-d.getTime();return diff>=-86400000&&diff<7*86400000;}
+function salaryRange(job){const s=String(job.salary||'').replace(/[,\s]/g,'');const m=s.match(/^(\d+)(?:[〜～~－-](\d+))?万円/);return m?{min:Number(m[1]),max:Number(m[2]||m[1])}:null;}
 function sortJobs(arr){return arr.map((x,i)=>({...x,__position:i})).sort((a,b)=>(Number(b.score)||0)-(Number(a.score)||0)||a.__position-b.__position);}
 function cleanJobs(data){if(!data||!Array.isArray(data.jobs))throw Error('jobs.json の形式が違います。');return sortJobs(data.jobs.filter(x=>x&&typeof x.company==='string').map((x,i)=>({...x,id:String(x.id||'job-'+i),score:Number.isFinite(Number(x.score))?Number(x.score):null,company:String(x.company||''),role:String(x.role||''),salary:String(x.salary||''),location:String(x.location||''),listing:String(x.listing||'未確認'),url:String(x.url||'')})));}
 async function getPrivateData(secret){
@@ -77,7 +78,14 @@ function createJobCard(x){
   if(Array.isArray(x.possible_duplicate_with)&&x.possible_duplicate_with.length)tag(tags,'重複要照合','warn');
   if(x.condition_alert)tag(tags,x.condition_alert,'warn');
   card.appendChild(tags);
-  const detail=el('div','job-detail');addDetail(detail,'年収',x.salary||'未確認');if(x.location)addDetail(detail,'勤務地',x.location);if(x.application_status&&x.application_status!=='未応募')addDetail(detail,'応募',x.application_status);card.appendChild(detail);
+  const salary=String(x.salary||'').trim();
+  const salaryKnown=Boolean(salary&&salary!=='未確認');
+  const salaryLine=el('div','job-salary'+(salaryKnown?'':' unverified'));
+  salaryLine.appendChild(el('span','salary-label','想定年収'));
+  salaryLine.appendChild(el('strong','salary-amount',salaryKnown?salary:'未確認'));
+  if(x.salary_verified_at)salaryLine.appendChild(el('small','salary-source','求人票確認 '+x.salary_verified_at));
+  card.appendChild(salaryLine);
+  const detail=el('div','job-detail');if(x.location)addDetail(detail,'勤務地',x.location);if(x.application_status&&x.application_status!=='未応募')addDetail(detail,'応募',x.application_status);card.appendChild(detail);
   if(x.notes)card.appendChild(el('p','job-notes',String(x.notes).slice(0,160)));
   const actions=el('div','job-actions'),url=safeUrl(x.url);
   if(url){link(actions,url,x.listing?.startsWith('掲載期間終了')?'過去の求人票 ↗':'求人票を見る ↗','direct-job-link');}
@@ -105,11 +113,20 @@ function render(){
  const latest=document.createDocumentFragment();
  for(const x of recent.slice(0,25))latest.appendChild(createJobCard(x));
  $('newJobList').replaceChildren(latest);
- const view=$('viewFilter').value,min=Number($('minFilter').value),q=$('searchInput').value.trim().toLocaleLowerCase();
+ const view=$('viewFilter').value,min=Number($('minFilter').value),q=$('searchInput').value.trim().toLocaleLowerCase(),salaryFilter=$('salaryFilter').value;
  let filtered=(view==='top50'?jobs.slice(0,50):jobs).filter(x=>(x.score||0)>=min);
+ if(salaryFilter!=='all')filtered=filtered.filter(x=>{
+  const r=salaryRange(x);
+  if(salaryFilter==='unknown')return !r;
+  if(!r)return false;
+  if(salaryFilter==='ceiling650')return r.max>=650;
+  if(salaryFilter==='floor600')return r.min>=600;
+  if(salaryFilter==='floor650')return r.min>=650;
+  return true;
+ });
  if(view==='recent')filtered=filtered.filter(isRecent);
  if(view==='starred')filtered=filtered.filter(x=>stars.has(x.id));
- if(q)filtered=filtered.filter(x=>(x.company+' '+x.role+' '+x.location).toLocaleLowerCase().includes(q));
+ if(q)filtered=filtered.filter(x=>(x.company+' '+x.role+' '+x.location+' '+x.salary).toLocaleLowerCase().includes(q));
  $('visibleCount').textContent=filtered.length+'件';
  $('emptyMessage').hidden=filtered.length>0;
  const frag=document.createDocumentFragment();
@@ -207,7 +224,7 @@ $('closeEditBtn').addEventListener('click',closeEditor);
 $('cancelEditBtn').addEventListener('click',closeEditor);
 $('editForm').addEventListener('submit',saveEditor);
 $('editDialog').addEventListener('cancel',e=>{if(saving)e.preventDefault();});
-for(const id of ['searchInput','viewFilter','minFilter'])$(id).addEventListener(id==='searchInput'?'input':'change',render);
+for(const id of ['searchInput','viewFilter','minFilter','salaryFilter'])$(id).addEventListener(id==='searchInput'?'input':'change',render);
 // Refresh on return to the app so new morning GitHub data can appear without manual copy.
 document.addEventListener('visibilitychange',()=>{
  if(document.visibilityState==='visible' && token && !busy && !saving && !$('editDialog').open &&
