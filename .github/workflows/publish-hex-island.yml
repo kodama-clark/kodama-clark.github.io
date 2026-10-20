@@ -1,0 +1,35 @@
+name: Publish Hex Island Web App
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'hex-island-site.zip'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Unpack game without touching other sites
+        run: |
+          test -f hex-island-site.zip
+          mkdir -p hex-island
+          unzip -o -q hex-island-site.zip -d hex-island
+          test -f hex-island/index.html
+          test -f hex-island/manifest.webmanifest
+          test -f hex-island/sw.js
+      - name: Commit built web app
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add hex-island/
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish Hex Island PWA"
+            git push
+          fi
