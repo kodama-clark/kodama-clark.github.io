@@ -1,0 +1,19 @@
+{
+  "id": "/my-career/",
+  "name": "My Career V2｜非公開求人ランキング",
+  "short_name": "My Career",
+  "description": "非公開GitHubデータから求人を確認",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f6f7",
+  "theme_color": "#102a3b",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
