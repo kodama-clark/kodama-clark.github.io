@@ -184,6 +184,11 @@ $('cancelEditBtn').addEventListener('click',closeEditor);
 $('editForm').addEventListener('submit',saveEditor);
 $('editDialog').addEventListener('cancel',e=>{if(saving)e.preventDefault();});
 for(const id of ['searchInput','viewFilter','minFilter'])$(id).addEventListener(id==='searchInput'?'input':'change',render);
+// Refresh on return to the app so new morning GitHub data can appear without manual copy.
+document.addEventListener('visibilitychange',()=>{
+ if(document.visibilityState==='visible' && token && !busy && !saving && !$('editDialog').open &&
+ loadedAt && Date.now()-loadedAt.getTime()>60000)connect(token);
+});
 if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 const saved=sessionToken();if(saved){$('rememberSession').checked=true;connect(saved);}
 })();
