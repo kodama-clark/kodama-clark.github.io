@@ -54,7 +54,13 @@
       <div class="stat"><span>最高適合度</span><strong id="bestScore">—</strong><small>100点満点</small></div>
       <div class="stat"><span>直近7日の更新</span><strong id="recentCount">—</strong><small>確認済み掲載とは別</small></div>
     </section>
-    <section class="panel results">
+    <section class="panel new-jobs-section" id="newJobsSection" hidden>
+      <div class="section-head"><div><div class="eyebrow">NEWLY ADDED</div><h2>🆕 最近追加された求人</h2></div><span id="newJobCount" class="count-pill">0件</span></div>
+      <p class="section-description">過去7日間にランキングへ新しく登録した候補を、追加日が新しい順に表示。<b>新規掲載・募集中であることを保証するものではありません。</b></p>
+      <div id="newJobList" class="job-list"></div>
+      <a class="jump-link" href="#rankingSection">↓ 累積TOP50を見る</a>
+    </section>
+    <section class="panel results" id="rankingSection">
       <div class="section-head"><div><div class="eyebrow">YOUR SHORTLIST</div><h2>累積求人ランキング</h2></div><div class="results-head-actions"><span id="visibleCount" class="count-pill">0件</span><button id="addJobBtn" type="button" class="add-job-btn">＋ 求人追加</button></div></div>
       <div class="controls">
         <label class="search-wrap"><span class="sr-only">会社名や職種で検索</span><input id="searchInput" type="search" placeholder="会社名・職種で検索…" autocomplete="off"></label>
