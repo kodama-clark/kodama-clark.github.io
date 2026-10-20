@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#102a3b">
+<meta name="description" content="My Career V2 - 非公開の求人データを自分のGitHubから確認するアプリ">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; manifest-src 'self'; connect-src https://api.github.com; font-src 'none'">
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="stylesheet" href="./app.css">
+<title>My Career V2｜非公開求人ランキング</title>
+<script src="./app.js" defer></script>
+</head>
+<body>
+<header class="header">
+  <div class="head-inner">
+    <div class="logo" aria-hidden="true">M</div>
+    <div><strong>My Career <span>V2</span></strong><small>私だけの求人ランキング</small></div>
+    <span class="private-label">🔒 非公開データ</span>
+  </div>
+</header>
+<main class="main">
+  <section class="welcome">
+    <div class="eyebrow">CAREER DASHBOARD</div>
+    <h1>余裕のある働き方を、<br>自分で選ぶ。</h1>
+    <p>GitHubの非公開データから、適合度・年収・新着求人をまとめて確認します。</p>
+  </section>
+
+  <section id="authPanel" class="panel auth-panel">
+    <div class="panel-heading"><span class="round-icon">🔑</span><div><h2>GitHubに安全に接続</h2><p>求人データはこのページには公開されません</p></div></div>
+    <label for="tokenInput">GitHubの読み取り専用トークン</label>
+    <input id="tokenInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_...">
+    <label class="remember"><input id="rememberSession" type="checkbox" checked> このタブを開いている間だけトークンを記憶</label>
+    <button class="primary" id="connectBtn" type="button">非公開求人を読み込む <span aria-hidden="true">→</span></button>
+    <p id="authMessage" class="feedback" role="status"></p>
+    <details class="setup">
+      <summary>初回設定：トークンの作り方</summary>
+      <ol>
+        <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">GitHubのFine-grained token作成画面</a>を開く。</li>
+        <li>Repository accessは <b>Only select repositories</b> で <code>my-career-ranking</code> のみ選択。</li>
+        <li>Repository permissionsは <b>Contents: Read-only</b> のみを設定。必要に応じて有効期限を選ぶ。</li>
+        <li>生成されたトークンをコピーし、上の欄に貼り付ける。トークンをチャットや公開ページに投稿しないでください。</li>
+      </ol>
+    </details>
+    <p class="privacy-note">このページに求人データ・トークンは埋め込まれていません。入力したトークンはGitHub APIへの読み取りにのみ使用し、当サイト運営者のサーバーに送信しません。求人データをブラウザー保存しません。</p>
+  </section>
+
+  <div id="dashboard" hidden>
+    <div class="toolbar"><div id="lastLoaded" class="small-status" role="status">未接続</div><div class="toolbar-actions"><button type="button" id="refreshBtn" class="subtle-btn">↻ 再取得</button><button type="button" id="disconnectBtn" class="subtle-btn">切断</button></div></div>
+    <section class="stats" aria-label="統計情報">
+      <div class="stat"><span>登録求人</span><strong id="countAll">—</strong><small>累積候補</small></div>
+      <div class="stat"><span>最高適合度</span><strong id="bestScore">—</strong><small>100点満点</small></div>
+      <div class="stat"><span>直近7日の更新</span><strong id="recentCount">—</strong><small>確認済み掲載とは別</small></div>
+    </section>
+    <section class="panel results">
+      <div class="section-head"><div><div class="eyebrow">YOUR SHORTLIST</div><h2>累積求人ランキング</h2></div><span id="visibleCount" class="count-pill">0件</span></div>
+      <div class="controls">
+        <label class="search-wrap"><span class="sr-only">会社名や職種で検索</span><input id="searchInput" type="search" placeholder="会社名・職種で検索…" autocomplete="off"></label>
+        <div class="filter-row">
+          <label>表示 <select id="viewFilter"><option value="top50">TOP50</option><option value="all">全件</option><option value="recent">7日以内の更新</option><option value="starred">お気に入り</option></select></label>
+          <label>最低点 <select id="minFilter"><option value="0">すべて</option><option value="60">60点以上</option><option value="70">70点以上</option><option value="80">80点以上</option><option value="85">85点以上</option></select></label>
+        </div>
+      </div>
+      <div id="jobList" class="job-list" aria-live="polite"></div>
+      <p id="emptyMessage" class="empty-message" hidden>条件に一致する求人はありません。</p>
+      <p class="footnote">点数は過去の暫定評価です。「未確認」は応募可能を意味しません。同一企業の異なる求人や未照合の候補を含みます。</p>
+    </section>
+  </div>
+  <footer>My Career V2 · Private data on GitHub · <a href="https://github.com/kodama-clark/my-career-ranking/blob/main/RANKING.md" target="_blank" rel="noopener noreferrer">非公開ランキングをGitHubで見る</a></footer>
+</main>
+</body>
+</html>
