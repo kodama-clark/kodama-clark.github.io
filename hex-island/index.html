@@ -604,7 +604,7 @@ function recordFinishedGame(){
  if(!state||state.winner<0)return;
  if(!state.gameId)state.gameId=generateGameId();
  const list=readRecords();if(list.some(r=>r.id===state.gameId))return;
- const entry={id:state.gameId,date:new Date().toISOString(),winner:state.winner,points:activePlayers().map((p,i)=>score(i)),round:state.round||1,difficulty:state.difficulty||'normal',playerCount:countPlayers(),longest:state.longest,army:state.army,knights:state.players.map(p=>p.usedKnights),roads:state.players.map((p,i)=>roadLength(i))};
+ const entry={id:state.gameId,date:new Date().toISOString(),winner:state.winner,points:activePlayers().map((p,i)=>score(i)),round:state.round||1,difficulty:state.difficulty||'normal',playerCount:countPlayers(),longest:state.longest,army:state.army,knights:activePlayers().map(p=>p.usedKnights),roads:activePlayers().map((p,i)=>roadLength(i))};
  list.unshift(entry);try{localStorage.setItem(RECORDS_KEY,JSON.stringify(list))}catch(e){console.warn('戦績を保存できませんでした',e)}
 }
 function recordsModal(){
@@ -612,7 +612,7 @@ function recordsModal(){
  const summary=`<div class="records-summary"><div class="records-stat"><b>${rows.length}</b><small>対戦数</small></div><div class="records-stat"><b>${wins}</b><small>勝利数</small></div><div class="records-stat"><b>${pct}%</b><small>勝率</small></div></div>`;
  const history=rows.length?rows.map((r,i)=>{
   let dt='日付不明';try{dt=new Date(r.date).toLocaleString('ja-JP',{year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}catch(e){}
-  const points=(Array.isArray(r.points)?r.points:[0,0,0,0]);const names=['あなた','CPU 1','CPU 2','CPU 3'];
+  const points=(Array.isArray(r.points)?r.points:[0,0,0,0]);const names=['あなた','CPU 1','CPU 2','CPU 3'].slice(0,r.playerCount===2?2:4);
   const winnerName=names[r.winner]||'不明';
   const diff={easy:'初級',normal:'標準',hard:'上級'}[r.difficulty]||'標準';
   return `<div class="records-item ${r.winner===0?'':'loss'}"><div class="result">${r.winner===0?'🏆 勝利':'🔹 敗北'} · ${escapeText(winnerName)}が1位</div><div class="records-meta">${escapeText(dt)} · ${r.round||1}ラウンド · ${diff}</div><div class="records-players">${names.map((name,j)=>`<span style="border-top:3px solid ${PLAYER_COLORS[j]}">${escapeText(name)}<br><b>${Number(points[j])||0}点</b></span>`).join('')}</div></div>`;
