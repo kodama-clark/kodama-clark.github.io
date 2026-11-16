@@ -1,4 +1,4 @@
-const CACHE_NAME='hex-island-v814-20261020';
+const CACHE_NAME='hex-island-v900-20261116';
 const FILES=['./','./index.html','./manifest.webmanifest','./favicon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{for(const k of await caches.keys()){if(k.startsWith('hex-island-')&&k!==CACHE_NAME)await caches.delete(k)} await self.clients.claim()})())});
