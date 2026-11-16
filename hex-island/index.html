@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#172d3d">
-<meta name="description" content="六角形の島を開拓しよう。自分対CPU3人で楽しめる、オフライン対応の戦略ボードゲーム。">
+<meta name="description" content="六角形の島を開拓しよう。自分対CPU1人または3人で楽しめる、オフライン対応の戦略ボードゲーム。">
 <meta name="application-name" content="六角島の開拓者">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -12,7 +12,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
-<title>六角島の開拓者 — Ver.8.14</title>
+<title>六角島の開拓者 — Ver.9.0</title>
 <style>
 :root{--ink:#203242;--ocean:#9ad3d1;--sand:#f6edda;--paper:#fffaf0;--accent:#0c867b;--gold:#f0b441;--muted:#667482;--red:#dc6858}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;overflow:hidden}body{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;background:#e7edec;color:var(--ink)}button,select{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.35;cursor:default}#app{height:100dvh;max-width:620px;margin:auto;display:flex;flex-direction:column;overflow:hidden;background:#e6f0eb;box-shadow:0 0 35px #182e2433}
@@ -267,13 +267,20 @@
 .top-menu button{min-width:0;width:100%;white-space:nowrap;font-size:12px;min-height:36px;padding:5px 3px}
 @media(max-width:375px){.top{gap:6px;padding:7px 9px}.top-identity .brand b{font-size:15px}.top-menu{gap:5px}.top-menu button{font-size:11px;padding:4px 2px}.top-identity #homeBtn{font-size:12px;padding:5px 7px;min-width:75px}}
 @media(max-height:700px){.top{gap:4px;padding-top:4px;padding-bottom:5px}.top-identity{min-height:31px}.top-identity .mark{width:30px;height:30px}.top-menu button{min-height:30px}}
+
+
+.road-picker{position:absolute;z-index:4;left:8px;right:8px;top:6px;display:flex;align-items:center;gap:7px;background:#fff9e8ed;border:1.5px solid #dfbc6e;padding:6px 8px;border-radius:11px}
+.road-picker.hidden{display:none}.road-picker-label{font-size:11px;font-weight:900;white-space:nowrap;color:#6d521f}
+.road-buttons{display:flex;overflow-x:auto;gap:6px;flex:1}.road-buttons button{flex:0 0 37px;height:37px;border-radius:11px;border:2px solid #ab7729;background:#fff;color:#654715;font-weight:900;font-size:17px;cursor:pointer}
+.road-choice{cursor:pointer}.road-choice circle{fill:#fff9e4;stroke:#ad731c;stroke-width:3}.road-choice text{font-family:system-ui,sans-serif;font-weight:900;font-size:17px;fill:#664317}
+.start-mode{margin:8px 0 10px;color:#f5eacb;width:100%}.start-mode .start-difficulty-options{grid-template-columns:repeat(2,minmax(0,1fr))}
 </style>
 </head>
 <body><main id="app">
-<header class="top"><div class="top-identity"><div class="mark">⬡</div><div class="brand"><b>六角島の開拓者</b><small>HEX ISLAND · Ver.8.13</small></div><button id="homeBtn" aria-label="タイトル画面に戻る">⌂ ホーム</button></div><nav class="top-menu" aria-label="ゲームメニュー"><button id="levelBtn" aria-label="CPU難易度">🤖 標準</button><button id="settingsBtn" aria-label="演出とCPU速度の設定" title="音・アニメーション・CPU速度">⚙️ 設定</button><button id="rulesBtn">📖 ルール</button><button id="restartBtn">↻ 新規</button></nav></header>
+<header class="top"><div class="top-identity"><div class="mark">⬡</div><div class="brand"><b>六角島の開拓者</b><small>HEX ISLAND · Ver.9.0</small></div><button id="homeBtn" aria-label="タイトル画面に戻る">⌂ ホーム</button></div><nav class="top-menu" aria-label="ゲームメニュー"><button id="levelBtn" aria-label="CPU難易度">🤖 標準</button><button id="settingsBtn" aria-label="演出とCPU速度の設定" title="音・アニメーション・CPU速度">⚙️ 設定</button><button id="rulesBtn">📖 ルール</button><button id="restartBtn">↻ 新規</button></nav></header>
 <section class="players" id="players"></section>
 <div class="status"><div class="msg" id="message">島を準備しています…</div><button type="button" id="cpuSpeedBtn" class="speed-chip" title="CPU手番の速度を切り替える">▶ 通常</button><div class="dice" id="dice"></div></div><section id="production" class="production hidden" aria-label="前回のサイコロで獲得した資源" aria-live="polite"></section>
-<section class="boardzone"><svg id="board" viewBox="-259 -239 518 478" aria-label="六角形のゲーム盤"></svg><svg id="fxLayer" viewBox="-259 -239 518 478" aria-hidden="true"></svg><div id="toast" class="toast hidden"></div><div id="cpuNotice" class="cpu-notice hidden" role="status" aria-live="polite"></div><button type="button" id="portHelpBtn" class="port-help">⚓ 港の建設位置</button><div class="port-guide hidden" id="portGuide"></div><div class="boardfooter">⚓ 港から伸びる2本の線の先に建設</div></section>
+<section class="boardzone"><div class="road-picker hidden" id="roadPicker" aria-label="道の建設先"></div><svg id="board" viewBox="-259 -239 518 478" aria-label="六角形のゲーム盤"></svg><svg id="fxLayer" viewBox="-259 -239 518 478" aria-hidden="true"></svg><div id="toast" class="toast hidden"></div><div id="cpuNotice" class="cpu-notice hidden" role="status" aria-live="polite"></div><button type="button" id="portHelpBtn" class="port-help">⚓ 港の建設位置</button><div class="port-guide hidden" id="portGuide"></div><div class="boardfooter">🛤️ 道は番号の丸または上の番号ボタンから選択 · ⚓ 港は線の先</div></section>
 <section class="dock"><div class="hand-heading"><div class="hand-heading-title"><strong>🎴 自分の手札</strong><span id="handSummary" aria-live="polite">資源 0枚</span></div><button type="button" id="handDevBtn" class="dev-shortcut">🃏 発展 0枚 <span aria-hidden="true">›</span></button></div><div id="wallet" class="wallet" aria-label="あなたの資源カード。タップで手札の詳細を確認できます"></div><div class="hintline"><span id="hint">資源を集めて島を開拓しよう</span><button id="historyBtn">履歴を見る</button></div><div class="actions" id="actions"></div></section></main>
 <div class="start-screen hidden" id="startScreen" role="dialog" aria-modal="true" aria-label="スタート画面">
   <div class="start-content">
@@ -281,6 +288,7 @@
     <div class="start-logo" aria-hidden="true"><span>🌲</span><span>🏠</span><span>⛵</span></div>
     <h1>六角島の<br>開拓者</h1>
     <p class="start-subtitle">サイコロが導く、新しい島の冒険。</p>
+    <div class="start-mode" role="group" aria-label="対戦人数"><div class="start-difficulty-heading">👥 対戦人数 <span>新しい対戦に適用</span></div><div class="start-difficulty-options"><button type="button" data-start-count="2" aria-pressed="false">2人<small>あなた＋CPU1人</small></button><button type="button" data-start-count="4" aria-pressed="true">4人<small>あなた＋CPU3人</small></button></div></div>
     <div class="start-difficulty" role="group" aria-labelledby="startDifficultyLabel">
       <div class="start-difficulty-heading" id="startDifficultyLabel">🤖 CPUの難易度 <span>新しい対戦に適用</span></div>
       <div class="start-difficulty-options">
@@ -296,7 +304,7 @@
       <button id="startRecords" class="start-button">🏆 戦績を見る <span>›</span></button>
     </div>
     <div class="start-save" id="startSaveInfo"></div>
-    <div class="start-foot">あなた ＋ CPU 3人 · オフライン対応</div>
+    <div class="start-foot">2人／4人を選べる · オフライン対応</div>
   </div>
 </div>
 <div class="scrim hidden" id="scrim"><div class="sheet" id="sheet"></div></div><div id="celebration" class="celebration hidden" aria-hidden="true"></div>
@@ -304,7 +312,7 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id), SVG='http://www.w3.org/2000/svg';
 const R=['木材','レンガ','羊毛','小麦','鉱石'], ICON=['🌲','🧱','🐑','🌾','⛰️'], COLORS=['#396c50','#b96951','#99b877','#e4c56d','#8a9ba0','#e9d8ae'], RC=['#4b895c','#ba6c50','#87a05b','#c3a65a','#6b8290'];
-const VERSION='8.13';
+const VERSION='9.0';
 const PLAYER_COLORS=['#e6a72e','#db657a','#597edf','#269a59'], NAMES=['あなた','CPU 1','CPU 2','CPU 3'];
 const CPU_TEXT_COLORS=['#8b6212','#b43b5b','#355fcb','#167342'];
 const COST={road:[1,1,0,0,0],settlement:[1,1,1,1,0],city:[0,0,0,2,3],dev:[0,0,1,1,1]};
@@ -399,6 +407,8 @@ const shuffled=a=>{let b=[...a];for(let i=b.length-1;i>0;i--){let j=rand(i+1);[b
 const toHex=(n)=>n.toString(16).padStart(2,'0');
 const fmt=(k)=>ICON[k]+' '+R[k];
 const player=i=>state.players[i];
+const countPlayers=()=>state?.playerCount===2?2:4;
+const activePlayers=()=>state.players.slice(0,countPlayers());
 function makeBoard(){
  tiles=[];verts=[];edges=[];ports=[];let vm=new Map(),em=new Map();let coords=[];
  for(let r=-2;r<=2;r++)for(let q=-2;q<=2;q++)if(Math.abs(q+r)<=2)coords.push([q,r]);
@@ -440,7 +450,7 @@ function ownedPorts(i){return ports.filter(port=>{let e=edges[port.edge];return 
 function rateFor(i,type){let mine=ownedPorts(i);if(mine.some(p=>p.type===type))return 2;if(mine.some(p=>p.type===-1))return 3;return 4}
 function portTitle(p){return p.type===-1?'万能港 3:1':R[p.type]+'港 2:1'}
 function portSummary(i){const have=ownedPorts(i);return have.length?have.map(portTitle).join('・'):'港なし（銀行 4:1）'}
-function newGame(difficultyOverride=null){const chosenDifficulty=['easy','normal','hard'].includes(difficultyOverride)?difficultyOverride:'normal';dismissDevReveals();if(victoryTimer!==null){clearTimeout(victoryTimer);victoryTimer=null}selectedPort=-1;currentCpuEvent=null;cpuNoticeToken++;cpuEvents=[];cpuCapture=false;makeBoard();state={gameId:generateGameId(),lastProduction:null,players:NAMES.map((name,id)=>({name,id,res:[0,0,0,0,0],dev:[],usedKnights:0,roads:0,settlements:0,cities:0,vpCards:0,playedDev:false})),ownerV:Array(verts.length).fill(-1),levelV:Array(verts.length).fill(0),ownerE:Array(edges.length).fill(-1),robber:tiles.findIndex(t=>t.type===5),setup:0,lastV:-1,current:0,phase:'order-roll',mode:null,dice:[1,1],round:1,log:[],longest:-1,army:-1,winner:-1,pendingFree:0,pendingRobber:false,difficulty:chosenDifficulty,turnOrder:[],setupOrder:[],orderRolls:[],turnIndex:0,cpuStage:'start',cpuStep:null};
+function newGame(difficultyOverride=null,countOverride=null){const chosenDifficulty=['easy','normal','hard'].includes(difficultyOverride)?difficultyOverride:'normal';const chosenCount=countOverride===2?2:4;dismissDevReveals();if(victoryTimer!==null){clearTimeout(victoryTimer);victoryTimer=null}selectedPort=-1;currentCpuEvent=null;cpuNoticeToken++;cpuEvents=[];cpuCapture=false;makeBoard();state={gameId:generateGameId(),playerCount:chosenCount,lastProduction:null,players:NAMES.map((name,id)=>({name,id,res:[0,0,0,0,0],dev:[],usedKnights:0,roads:0,settlements:0,cities:0,vpCards:0,playedDev:false})),ownerV:Array(verts.length).fill(-1),levelV:Array(verts.length).fill(0),ownerE:Array(edges.length).fill(-1),robber:tiles.findIndex(t=>t.type===5),setup:0,lastV:-1,current:0,phase:'order-roll',mode:null,dice:[1,1],round:1,log:[],longest:-1,army:-1,winner:-1,pendingFree:0,pendingRobber:false,difficulty:chosenDifficulty,turnOrder:[],setupOrder:[],orderRolls:[],turnIndex:0,cpuStage:'start',cpuStep:null};
  initDeck();cpuRunning=false;rolling=false;$('fxLayer').innerHTML='';$('celebration').innerHTML='';$('celebration').classList.add('hidden');hideModal();log('🎲 サイコロで配置順を決めましょう！');save();render();showOrderRoll();}
 function save(){try{localStorage.setItem('hexIslandSaveV61',JSON.stringify({state,terrain:tiles.map(t=>[t.type,t.num]),ports:ports.map(p=>[p.edge,p.type])}))}catch(e){}}
 function load(resume=true){try{
@@ -448,6 +458,7 @@ function load(resume=true){try{
  if(!obj||!obj.state||!Array.isArray(obj.terrain)||obj.terrain.length!==19)return false;
  makeBoard();tiles.forEach((t,i)=>{[t.type,t.num]=obj.terrain[i]});makePorts(obj.ports);
  state=obj.state;if(state.winner>=0&&!state.gameId){let hash=2166136261;for(let k=0;k<JSON.stringify(obj).length;k++){hash=Math.imul(hash^JSON.stringify(obj).charCodeAt(k),16777619)}state.gameId='legacy-'+(hash>>>0).toString(36)}if(state.winner>=0)recordFinishedGame();if(!['easy','normal','hard'].includes(state.difficulty))state.difficulty='normal';
+ if(state.playerCount!==2)state.playerCount=4;
  if(!Array.isArray(state.players)||state.ownerV.length!==verts.length||state.ownerE.length!==edges.length)return false;
  if(!Array.isArray(state.deck))initDeck();
  if(!state.cpuStage)state.cpuStage='start';
@@ -455,7 +466,7 @@ function load(resume=true){try{
  updateAwards();
  if(!resume)return true;
  if(state.phase==='cpu')setTimeout(()=>runCpuTurns(),400);
- else if(state.phase.startsWith('setup')&&state.setup<8&&state.current!==0)setTimeout(cpuSetup,450);
+ else if(state.phase.startsWith('setup')&&state.setup<2*countPlayers()&&state.current!==0)setTimeout(cpuSetup,450);
  else if(state.phase==='order-roll')setTimeout(showOrderRoll,100);
  else if(state.phase==='order-result')setTimeout(showOrderResult,100);
  else if(state.phase==='choose-victim')setTimeout(showVictimChoices,150);
@@ -465,7 +476,7 @@ function load(resume=true){try{
 // Everyone rolls two dice. Tied scores are rerolled among tied players until all are distinct.
 // Placement is rank 1→4, then 4→1. Normal turns use the same first-to-fourth order.
 function rollForOrder(){
- const throws=NAMES.map((_,id)=>({id,dice:[1+rand(6),1+rand(6)],rerolls:0}));
+ const throws=NAMES.slice(0,countPlayers()).map((_,id)=>({id,dice:[1+rand(6),1+rand(6)],rerolls:0}));
  let collisions=0;
  while(true){
   const groups=new Map();
@@ -483,7 +494,7 @@ function rollForOrder(){
  save();render();sound('dice');showOrderResult();
 }
 function showOrderRoll(){if(state.phase!=='order-roll')return;
- openModal('🎲 配置順をサイコロで決めよう',`<p>あなたとCPU3人が<b>サイコロ2個</b>を振ります。合計が大きい順に1〜4位を決め、同点なら振り直します。</p><div class="order-description"><b>1回目：</b> 1位 → 2位 → 3位 → 4位<br><b>2回目：</b> 4位 → 3位 → 2位 → 1位<br><b>通常ターン：</b> 1位から順番に進みます</div><button class="sheetbtn order-full" id="rollOrder">🎲 4人のサイコロを振る</button>`,false);
+ openModal('🎲 配置順をサイコロで決めよう',`<p>あなたとCPU${countPlayers()-1}人が<b>サイコロ2個</b>を振ります。合計が大きい順で配置し、同点なら振り直します。</p><div class="order-description"><b>1回目：</b> 1位 → ${countPlayers()}位<br><b>2回目：</b> ${countPlayers()}位 → 1位<br><b>通常ターン：</b> 1位から順に進みます</div><button class="sheetbtn order-full" id="rollOrder">🎲 ${countPlayers()}人のサイコロを振る</button>`,false);
  $('rollOrder').onclick=()=>{unlockAudio();rollForOrder()};
 }
 function showOrderResult(){if(state.phase!=='order-result')return;
@@ -500,14 +511,14 @@ function showOrderResult(){if(state.phase!=='order-result')return;
 }
 function turnOrderText(){return (state.turnOrder||[]).map((id,k)=>`${k+1}.${NAMES[id]}`).join(' → ')}
 function finishSetup(){
- state.setup=8;state.lastV=-1;state.turnIndex=0;state.current=state.turnOrder[0];
+ state.setup=2*countPlayers();state.lastV=-1;state.turnIndex=0;state.current=state.turnOrder[0];
  state.phase=state.current===0?'roll':'cpu';state.mode=null;state.round=1;state.cpuStage='start';state.cpuStep=state.current;
  log('🎲 初期配置完了。通常の手番順：'+turnOrderText());save();render();
  if(state.current!==0)setTimeout(()=>runCpuTurns(),610);
  else showToast('🎲 あなたの手番！');
 }
 function advanceTurn(){
- state.turnIndex=(state.turnIndex+1)%4;
+ state.turnIndex=(state.turnIndex+1)%countPlayers();
  if(state.turnIndex===0)state.round++;
  state.current=state.turnOrder[state.turnIndex];
  state.phase=state.current===0?'roll':'cpu';state.cpuStage='start';state.cpuStep=state.current;
@@ -553,7 +564,7 @@ function validRoad(e,i,initial=false,from=-1){
 function legalV(i,initial=false){return verts.filter(v=>validSettlement(v.id,i,initial)).map(v=>v.id)}
 function legalE(i,initial=false,from=-1){return edges.filter(e=>validRoad(e.id,i,initial,from)).map(e=>e.id)}
 function placeSettlement(v,i,initial=false){if(!validSettlement(v,i,initial))return false;if(!initial)pay(i,COST.settlement);state.ownerV[v]=i;state.levelV[v]=1;player(i).settlements++;
- if(initial&&state.setup>=4)verts[v].tiles.forEach(t=>{if(tiles[t].type!==5)give(i,tiles[t].type)});
+ if(initial&&state.setup>=countPlayers())verts[v].tiles.forEach(t=>{if(tiles[t].type!==5)give(i,tiles[t].type)});
  updateAwards();checkWinner();buildingFx(v,i,false);setCpuEvent(i,'settlement',v,initial);return true}
 function placeRoad(e,i,initial=false,free=false){if(!validRoad(e,i,initial,state.lastV))return false;if(!initial&&!free)pay(i,COST.road);state.ownerE[e]=i;player(i).roads++;updateAwards();checkWinner();roadFx(e,i);setCpuEvent(i,'road',e,initial);return true}
 function placeCity(v,i){if(state.ownerV[v]!==i||state.levelV[v]!==1||player(i).cities>=4||!canAfford(i,COST.city))return false;
@@ -571,7 +582,7 @@ function roadLength(i){const owned=edges.filter(e=>state.ownerE[e.id]===i).map(e
  return Math.max(...owned.flatMap(e=>[dfs(edges[e].a,new Set()),dfs(edges[e].b,new Set())]))}
 function updateAwards(){
  const previousLongest=state.longest;
- const lens=state.players.map((p,i)=>roadLength(i)),max=Math.max(...lens);
+ const lens=activePlayers().map((p,i)=>roadLength(i)),max=Math.max(...lens);
  const candidates=lens.map((n,i)=>n===max?i:-1).filter(i=>i>=0);
  // 5+ linked roads; branch roads count only one continuous non-repeated path.
  // If the leader is tied, the previous holder keeps the 2 points.
@@ -582,7 +593,7 @@ function updateAwards(){
   if(state.longest>=0){log('🏅 '+NAMES[state.longest]+' が最長交易路（'+lens[state.longest]+'本）で＋2点！');awardFx(state.longest,'🏅 最長交易路 +2')} 
   else if(previousLongest>=0)log('🏅 最長交易路の称号が保留になった');
  }
- let oldArmy=state.army;let knights=state.players.map(p=>p.usedKnights),m=Math.max(...knights),c=knights.map((n,i)=>n===m?i:-1).filter(i=>i>=0);
+ let oldArmy=state.army;let knights=activePlayers().map(p=>p.usedKnights),m=Math.max(...knights),c=knights.map((n,i)=>n===m?i:-1).filter(i=>i>=0);
  if(m<3)state.army=-1;else if(c.length===1)state.army=c[0];else if(!c.includes(state.army))state.army=-1;
  if(state.army>=0&&state.army!==oldArmy)awardFx(state.army,'⚔️ 最大騎士力 +2');
 }
@@ -593,7 +604,7 @@ function recordFinishedGame(){
  if(!state||state.winner<0)return;
  if(!state.gameId)state.gameId=generateGameId();
  const list=readRecords();if(list.some(r=>r.id===state.gameId))return;
- const entry={id:state.gameId,date:new Date().toISOString(),winner:state.winner,points:state.players.map((p,i)=>score(i)),round:state.round||1,difficulty:state.difficulty||'normal',longest:state.longest,army:state.army,knights:state.players.map(p=>p.usedKnights),roads:state.players.map((p,i)=>roadLength(i))};
+ const entry={id:state.gameId,date:new Date().toISOString(),winner:state.winner,points:activePlayers().map((p,i)=>score(i)),round:state.round||1,difficulty:state.difficulty||'normal',playerCount:countPlayers(),longest:state.longest,army:state.army,knights:state.players.map(p=>p.usedKnights),roads:state.players.map((p,i)=>roadLength(i))};
  list.unshift(entry);try{localStorage.setItem(RECORDS_KEY,JSON.stringify(list))}catch(e){console.warn('戦績を保存できませんでした',e)}
 }
 function recordsModal(){
@@ -627,8 +638,8 @@ function buildCostText(kind){return COST[kind].map((v,i)=>v?ICON[i]+v:'').filter
 function phaseText(){if(state.winner>=0)return (state.winner===0?'🎉 勝利！':'🏁 '+NAMES[state.winner]+' の勝利');
  if(state.phase==='order-roll')return '🎲 サイコロで初期配置の順番を決めよう';
  if(state.phase==='order-result')return '🏅 配置順が決定！ 結果を確認しよう';
- if(state.phase==='setup-settlement')return `初期配置 ${state.setup+1}/8（${state.turnOrder.indexOf(state.current)+1}位）：${NAMES[state.current]}、開拓地を置く`;
- if(state.phase==='setup-road')return `初期配置 ${state.setup+1}/8：${NAMES[state.current]}、道を1本伸ばす`;
+ if(state.phase==='setup-settlement')return `初期配置 ${state.setup+1}/${2*countPlayers()}（${state.turnOrder.indexOf(state.current)+1}位）：${NAMES[state.current]}、開拓地を置く`;
+ if(state.phase==='setup-road')return `初期配置 ${state.setup+1}/${2*countPlayers()}：${NAMES[state.current]}、道を1本伸ばす`;
  if(state.phase==='robber')return '🦹 盗賊を移動：別の地形をタップ';
  if(state.phase==='choose-victim')return '🦹 資源を奪う相手を選んでください';
  if(state.phase==='human-discard')return '🦹 資源を半分捨ててください';
@@ -641,7 +652,7 @@ function phaseText(){if(state.winner>=0)return (state.winner===0?'🎉 勝利！
  return `ラウンド ${state.round}：建設・交易をして次の手番へ`}
 function render(){if(!state)return;renderPlayers();renderWallet();renderBoard();renderProduction();renderCpuNotice();renderActions();$('cpuSpeedBtn').textContent=fxPrefs.cpuFast?'⏩ 高速':'▶ 通常';$('cpuSpeedBtn').setAttribute('aria-pressed',String(fxPrefs.cpuFast));$('message').textContent=phaseText();$('levelBtn').textContent='🤖 '+({easy:'初級',normal:'標準',hard:'上級'}[state.difficulty]||'標準');$('dice').innerHTML=state.dice.map(v=>`<span class="die">${['⚀','⚁','⚂','⚃','⚄','⚅'][v-1]}</span>`).join('');}
 function visibleDevCount(i){return player(i).dev.filter(c=>!c.used).length}
-function renderPlayers(){$('players').innerHTML=state.players.map((p,i)=>{
+function renderPlayers(){$('players').style.gridTemplateColumns=`repeat(${countPlayers()}, minmax(0, 1fr))`; $('players').innerHTML=activePlayers().map((p,i)=>{
  const resources=total(p),devs=visibleDevCount(i),road=roadLength(i),points=score(i,state.winner>=0);
  const knightHolder=state.army===i,roadHolder=state.longest===i;
  const label=`${p.name}、公開勝利点${points}点、資源${resources}枚、発展カード${devs}枚、開拓地${p.settlements}、都市${p.cities}、最長の道${road}本、使用済み騎士${p.usedKnights}枚。${knightHolder?'最大騎士力を保持、2点獲得。':''}${roadHolder?'最長交易路を保持、2点獲得。':''}詳細を見る`;
@@ -653,7 +664,7 @@ function renderWallet(){
  $('handDevBtn').innerHTML=`🃏 発展 ${unplayed}枚 <span aria-hidden="true">›</span>`;
  $('handDevBtn').setAttribute('aria-label',`発展カード${unplayed}枚を見る`);
  $('wallet').innerHTML=R.map((name,i)=>`<button type="button" class="res r-${i} ${mine.res[i]===0?'empty':''} ${walletFlashUntil>Date.now()&&walletGains[i]>0?'gain':''}" aria-label="${name} ${mine.res[i]}枚。自分の手札の詳細を表示" title="${name}：${mine.res[i]}枚。タップで手札の詳細"><span class="ico">${ICON[i]}</span><small>${name}</small><b>${mine.res[i]}</b></button>`).join('');
- let h='';if(state.phase==='order-roll'||state.phase==='order-result')h='🎲 配置順を決めて開拓を始めよう';else if(state.phase.startsWith('setup'))h=`💡 ${state.setup<4?'1巡目':'2巡目（逆順）'}：⚓の線の先に建てると港を獲得`;else if(state.phase==='action'&&state.current===0){h=state.mode==='road'||state.mode==='road-free'?`🛤️ 自分の道を延長 · 最長${roadLength(0)}本（5本以上で＋2点）`:`⚓ ${ownedPorts(0).length?'利用中：'+ownedPorts(0).map(p=>p.type<0?'万能3:1':R[p.type]+'2:1').join(' / '):'港マークから2本の線の先に拠点を建設'} · 🃏 ${player(0).dev.length}枚`;}else h='🏆 先に10点集めた人が勝ち！';$('hint').textContent=h;
+ let h='';if(state.phase==='order-roll'||state.phase==='order-result')h='🎲 配置順を決めて開拓を始めよう';else if(state.phase.startsWith('setup'))h=`💡 ${state.setup<countPlayers()?'1巡目':'2巡目（逆順）'}：⚓の線の先に建てると港を獲得`;else if(state.phase==='action'&&state.current===0){h=state.mode==='road'||state.mode==='road-free'?`🛤️ 自分の道を延長 · 最長${roadLength(0)}本（5本以上で＋2点）`:`⚓ ${ownedPorts(0).length?'利用中：'+ownedPorts(0).map(p=>p.type<0?'万能3:1':R[p.type]+'2:1').join(' / '):'港マークから2本の線の先に拠点を建設'} · 🃏 ${player(0).dev.length}枚`;}else h='🏆 先に10点集めた人が勝ち！';$('hint').textContent=h;
 }
 function hasPlayableDev(i){return !player(i).playedDev&&player(i).dev.some(c=>!c.used&&c.type!=='vp'&&c.turn<state.round)}
 function renderActions(){let acts=[];
@@ -704,7 +715,9 @@ function renderPortGuide(){
  guide.classList.remove('hidden');
  $('closePortGuide').onclick=()=>{selectedPort=-1;renderBoard()};
 }
-function renderBoard(){
+function roadCandidates(){if(!state||state.current!==0||cpuRunning||state.winner>=0)return [];if(state.phase==='setup-road')return legalE(0,true,state.lastV);if((state.phase==='action'||state.phase==='roll')&&['road','road-free'].includes(state.mode))return legalE(0);return []}
+function updateRoadPicker(){const el=$('roadPicker');if(!el)return;const available=roadCandidates();if(!available.length){el.classList.add('hidden');el.innerHTML='';return}el.classList.remove('hidden');el.innerHTML=`<span class="road-picker-label">🛤️ 道の位置</span><div class="road-buttons">${available.map((id,n)=>`<button type="button" data-road-pick="${id}" aria-label="道の候補${n+1}を選ぶ">${n+1}</button>`).join('')}</div>`}
+function renderBoard(){updateRoadPicker();
  let s=`<defs>
  <linearGradient id="hexSea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f5ebbb"/><stop offset="1" stop-color="#d2e3b2"/></linearGradient>
  <linearGradient id="tileLit" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#ffffff" stop-opacity=".25"/><stop offset=".85" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -740,7 +753,7 @@ function renderBoard(){
   let a=verts[e.a],b=verts[e.b],owner=state.ownerE[e.id];
   if(owner>=0)s+=`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#2b3844" stroke-width="11" stroke-linecap="round"/><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${PLAYER_COLORS[owner]}" stroke-width="7" stroke-linecap="round"/>`;
   else if(eligibleE.includes(e.id))s+=`<line class="hint" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#fff5ae" stroke-width="9" stroke-linecap="round"/>`;
-  if(eligibleE.includes(e.id))s+=`<line class="hit" data-edge="${e.id}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="transparent" stroke-width="21" stroke-linecap="round"/><circle class="hit" data-edge="${e.id}" cx="${(a.x+b.x)/2}" cy="${(a.y+b.y)/2}" r="12" fill="#ffffff01"/>`;
+  if(eligibleE.includes(e.id)){const number=eligibleE.indexOf(e.id)+1,mx=(a.x+b.x)/2,my=(a.y+b.y)/2;s+=`<line class="hit" data-edge="${e.id}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="transparent" stroke-width="29" stroke-linecap="round"/><g class="road-choice" data-edge="${e.id}" role="button" aria-label="道の候補 ${number} 番" tabindex="0"><circle cx="${mx}" cy="${my}" r="16"/><text x="${mx}" y="${my+5}" text-anchor="middle" pointer-events="none">${number}</text></g>`;}
  });
  const harborVerts=new Map();ports.forEach(p=>{const e=edges[p.edge];for(const v of [e.a,e.b])harborVerts.set(v,true)});
  let eligibleV=[];if(state.current===0){if(state.phase==='setup-settlement')eligibleV=legalV(0,true);else if(state.phase==='action'&&state.mode==='settlement')eligibleV=legalV(0);else if(state.phase==='action'&&state.mode==='city')eligibleV=verts.filter(v=>state.ownerV[v.id]===0&&state.levelV[v.id]===1).map(v=>v.id)}
@@ -842,7 +855,7 @@ function discardAuto(i){let p=player(i),count=total(p);if(count<=7)return;let n=
 function discardHuman(next){if(total(player(0))<=7){next();return}let n=Math.floor(total(player(0))/2);if(n===0){next();return}let picked=[0,0,0,0,0];
  const redraw=()=>{openModal('🦹 資源を捨てる',`<p>7が出ました。8枚以上持っている人は半分を捨てます。<br>あと <b>${n-picked.reduce((a,b)=>a+b,0)}</b> 枚選んでください。</p><div class="pills">${R.map((r,j)=>`<button class="pill" data-discard="${j}" ${picked[j]>=player(0).res[j]||picked.reduce((a,b)=>a+b,0)>=n?'disabled':''}>${ICON[j]}<strong>${picked[j]}</strong><small> / ${player(0).res[j]}</small></button>`).join('')}</div><div class="row"><button class="sheetbtn secondary" id="resetDiscard">選び直す</button><button class="sheetbtn" id="confirmDiscard" ${picked.reduce((a,b)=>a+b,0)!==n?'disabled':''}>捨てて進む</button></div>`,false);
  $('sheet').querySelectorAll('[data-discard]').forEach(el=>el.onclick=()=>{picked[+el.dataset.discard]++;redraw()});$('resetDiscard').onclick=()=>{picked.fill(0);redraw()};$('confirmDiscard').onclick=()=>{picked.forEach((x,i)=>player(0).res[i]-=x);log('あなた：資源を '+n+'枚捨てた');hideModal();save();next()}};redraw()}
-function produce(n){let result=Array(4).fill(0).map(()=>[0,0,0,0,0]),tileItems=[];tiles.forEach(t=>{if(t.num!==n||t.id===state.robber)return;let amount=0;t.vs.forEach(v=>{let i=state.ownerV[v];if(i>=0){let amt=state.levelV[v];give(i,t.type,amt);result[i][t.type]+=amt;amount+=amt}});if(amount)tileItems.push({id:t.id,type:t.type,count:amount})});
+function produce(n){let result=Array(countPlayers()).fill(0).map(()=>[0,0,0,0,0]),tileItems=[];tiles.forEach(t=>{if(t.num!==n||t.id===state.robber)return;let amount=0;t.vs.forEach(v=>{let i=state.ownerV[v];if(i>=0){let amt=state.levelV[v];give(i,t.type,amt);result[i][t.type]+=amt;amount+=amt}});if(amount)tileItems.push({id:t.id,type:t.type,count:amount})});
  walletGains=result[0].slice();walletFlashUntil=Date.now()+1100;if(tileItems.length)resourceFx(tileItems);
  let gets=result.map((items,i)=>({i,count:items.reduce((a,b)=>a+b,0)})).filter(a=>a.count>0);state.lastProduction={n,by:state.current,round:state.round,gains:result};log(n+'の目：'+(gets.length?gets.map(g=>NAMES[g.i]+' '+formatGains(result[g.i])).join('、'):'資源の獲得なし'));
  if(gets.length)showToast('🎁 '+gets.map(g=>NAMES[g.i]+' +'+g.count).join(' / '),1400)}
@@ -851,12 +864,12 @@ function rollHuman(){if(state.phase!=='roll'||state.current!==0||rolling||state.
  const spin=setInterval(()=>{
   state.dice=[1+rand(6),1+rand(6)];$('dice').innerHTML=state.dice.map(v=>`<span class="die">${['⚀','⚁','⚂','⚃','⚄','⚅'][v-1]}</span>`).join('');
   if(++anim>7){clearInterval(spin);rolling=false;$('dice').classList.remove('is-rolling');sound('dice');let n=state.dice[0]+state.dice[1];log('あなた：'+n+' を出した');
-   if(n===7){reportSeven();for(let j=1;j<4;j++)discardAuto(j);state.phase='human-discard';save();discardHuman(()=>{state.phase='robber';state.pendingRobber=true;state.robberReturnPhase='action';showToast('🦹 盗賊を別のタイルへ移動');save();render()})}
+   if(n===7){reportSeven();for(let j=1;j<countPlayers();j++)discardAuto(j);state.phase='human-discard';save();discardHuman(()=>{state.phase='robber';state.pendingRobber=true;state.robberReturnPhase='action';showToast('🦹 盗賊を別のタイルへ移動');save();render()})}
    else{produce(n);state.phase='action';checkWinner();save();render()}
   }
  },70);
 }
-function completeSetup(){state.setup++;state.lastV=-1;if(state.setup>=8){finishSetup();return}
+function completeSetup(){state.setup++;state.lastV=-1;if(state.setup>=2*countPlayers()){finishSetup();return}
  state.current=state.setupOrder[state.setup];state.phase='setup-settlement';save();render();if(state.current!==0)setTimeout(cpuSetup,550)}
 function vertexValue(v,i){let p=player(i);let s=0,types=new Set();for(const tid of verts[v].tiles){let t=tiles[tid];if(t.type===5)continue;s+=(ODDS[t.num]||0)*2;types.add(t.type);if(t.type===0||t.type===1)s+=.7;}
  let owned=new Set();verts.forEach(x=>{if(state.ownerV[x.id]===i)x.tiles.forEach(t=>owned.add(tiles[t].type))});for(const type of types)if(!owned.has(type))s+=3;
@@ -868,7 +881,7 @@ function edgeValue(e,i){let en=edges[e],a=en.a,b=en.b;let ends=[a,b];let s=0;
 function chooseSetupE(i,from){let opts=legalE(i,true,from);return opts.sort((a,b)=>edgeValue(b,i)-edgeValue(a,i))[0]}
 async function cpuSetup(){if(cpuRunning||state.current===0||state.winner>=0||!state.phase.startsWith('setup'))return;cpuRunning=true;
  try{
-  while(state.setup<8&&state.current!==0){
+  while(state.setup<2*countPlayers()&&state.current!==0){
    const i=state.current;
    if(state.phase==='setup-settlement'){
     const v=chooseSetupV(i);if(v===undefined)break;
@@ -877,10 +890,10 @@ async function cpuSetup(){if(cpuRunning||state.current===0||state.winner>=0||!st
    const e=chooseSetupE(i,state.lastV);
    if(e!==undefined)placeRoad(e,i,true);
    log(NAMES[i]+' が道を配置');state.setup++;state.lastV=-1;
-   if(state.setup>=8){finishSetup()}
+   if(state.setup>=2*countPlayers()){finishSetup()}
    else{state.current=state.setupOrder[state.setup];state.phase='setup-settlement';save();render()}
    if(e!==undefined){showCpuNotice({i,kind:'road',target:e,initial:true});await cpuDelay(450,65)}
-   if(state.setup>=8||state.current===0)break;
+   if(state.setup>=2*countPlayers()||state.current===0)break;
   }
  }finally{cpuRunning=false;save();render();clearCpuNotice()}
 }
@@ -957,7 +970,7 @@ function cardsModal(){
 function resourceChoiceModal(kind){let selected=[];
  const display=()=>{if(kind==='plenty')openModal('🌾 収穫',`<p>資源を合計2枚もらえます。あと${2-selected.length}枚を選択。</p><div class="pills">${R.map((r,j)=>`<button class="pill" data-resource="${j}">${ICON[j]}<strong>${selected.filter(x=>x===j).length}</strong></button>`).join('')}</div><button class="sheetbtn secondary" id="resetP">選び直す</button>`,false);
  else openModal('💰 独占',`<p>選んだ種類の資源を、ほかの3人からすべてもらいます。</p><div class="pills">${R.map((r,j)=>`<button class="pill" data-resource="${j}">${ICON[j]}<strong>${R[j]}</strong></button>`).join('')}</div>`,false);
- $('sheet').querySelectorAll('[data-resource]').forEach(el=>el.onclick=()=>{let k=+el.dataset.resource;if(kind==='plenty'){selected.push(k);give(0,k);if(selected.length<2)return display();log('あなた：資源を2枚獲得');}else{let amount=0;for(let i=1;i<4;i++){amount+=player(i).res[k];give(0,k,player(i).res[k]);player(i).res[k]=0}showToast(fmt(k)+' を'+amount+'枚独占！');log('あなた：'+R[k]+'を'+amount+'枚独占')}hideModal();save();render()});
+ $('sheet').querySelectorAll('[data-resource]').forEach(el=>el.onclick=()=>{let k=+el.dataset.resource;if(kind==='plenty'){selected.push(k);give(0,k);if(selected.length<2)return display();log('あなた：資源を2枚獲得');}else{let amount=0;for(let i=1;i<countPlayers();i++){amount+=player(i).res[k];give(0,k,player(i).res[k]);player(i).res[k]=0}showToast(fmt(k)+' を'+amount+'枚独占！');log('あなた：'+R[k]+'を'+amount+'枚独占')}hideModal();save();render()});
  if(kind==='plenty')$('resetP').onclick=()=>{selected.forEach(k=>player(0).res[k]--);selected=[];display()}};display()}
 // CPUs appraise a full basket, considering the resources required for their next build.
 function cpuResourceValues(i,inv){
@@ -1000,7 +1013,7 @@ function tradeModal(){
   if(bank){
    body+=`<div class="row"><label>渡す</label><select id="giveSel">${R.map((r,i)=>`<option value="${i}" ${i===giveType?'selected':''}>${fmt(i)}（${p.res[i]}枚）</option>`).join('')}</select></div><div class="row"><label>受取</label><select id="getSel">${R.map((r,i)=>`<option value="${i}" ${i===getType?'selected':''}>${fmt(i)}</option>`).join('')}</select></div><div class="row"><label>交換回数</label><button type="button" class="stepbtn" id="bankMinus" ${bankQty<=1?'disabled':''}>−</button><b>${bankQty}回</b><button type="button" class="stepbtn" id="bankPlus" ${bankQty>=Math.max(1,maxBank)?'disabled':''}>＋</button></div><div class="trade-summary">⚓ ${escapeText(portSummary(0))}<br><strong>${fmt(giveType)} ${rate*bankQty}枚 → ${fmt(getType)} ${bankQty}枚</strong></div><button type="button" class="sheetbtn" id="goTrade" ${validBank?'':'disabled'}>この条件で交換</button>`;
   }else{
-   body+=`<div><label>交渉相手を選択</label><div class="cpu-choice-row" role="group" aria-label="交渉相手を選択">${[1,2,3].map(i=>`<button type="button" class="cpu-choice ${i===target?'is-selected':''}" data-trade-cpu="${i}" aria-pressed="${i===target}" style="--cpu-color:${PLAYER_COLORS[i]};--cpu-text:${CPU_TEXT_COLORS[i]}"><span class="cpu-choice-name">● ${NAMES[i]}</span><small>手札${total(player(i))}枚</small></button>`).join('')}</div></div><div class="trade-grid"><div class="trade-col offer"><h3>📤 あなたが渡す</h3><div class="micro">持っている資源から選択</div>${stepRows('offer',offer)}</div><div class="trade-col request"><h3>📥 CPUからもらう</h3><div class="micro">CPUの手札にない資源は交換不可</div>${stepRows('ask',ask)}</div></div><div class="trade-summary"><strong>渡す ${tradeCount(offer)}枚 ⇄ もらう ${tradeCount(ask)}枚</strong><br>${offer.map((v,k)=>v?ICON[k]+v:'').filter(Boolean).join(' ')||'未選択'} → ${ask.map((v,k)=>v?ICON[k]+v:'').filter(Boolean).join(' ')||'未選択'}</div><button type="button" class="sheetbtn" id="goTrade" ${validCpu?'':'disabled'}>🤝 この条件を提案</button> <button type="button" class="sheetbtn secondary" id="clearTrade">クリア</button>`;
+   body+=`<div><label>交渉相手を選択</label><div class="cpu-choice-row" role="group" aria-label="交渉相手を選択">${Array.from({length:countPlayers()-1},(_,n)=>n+1).map(i=>`<button type="button" class="cpu-choice ${i===target?'is-selected':''}" data-trade-cpu="${i}" aria-pressed="${i===target}" style="--cpu-color:${PLAYER_COLORS[i]};--cpu-text:${CPU_TEXT_COLORS[i]}"><span class="cpu-choice-name">● ${NAMES[i]}</span><small>手札${total(player(i))}枚</small></button>`).join('')}</div></div><div class="trade-grid"><div class="trade-col offer"><h3>📤 あなたが渡す</h3><div class="micro">持っている資源から選択</div>${stepRows('offer',offer)}</div><div class="trade-col request"><h3>📥 CPUからもらう</h3><div class="micro">CPUの手札にない資源は交換不可</div>${stepRows('ask',ask)}</div></div><div class="trade-summary"><strong>渡す ${tradeCount(offer)}枚 ⇄ もらう ${tradeCount(ask)}枚</strong><br>${offer.map((v,k)=>v?ICON[k]+v:'').filter(Boolean).join(' ')||'未選択'} → ${ask.map((v,k)=>v?ICON[k]+v:'').filter(Boolean).join(' ')||'未選択'}</div><button type="button" class="sheetbtn" id="goTrade" ${validCpu?'':'disabled'}>🤝 この条件を提案</button> <button type="button" class="sheetbtn secondary" id="clearTrade">クリア</button>`;
   }
   if(result)body+=`<div class="trade-result" role="status">${escapeText(result)}</div>`;
   if(counter&&mode==='cpu')body+=`<button type="button" class="sheetbtn alt" id="acceptCounter">逆提案を受け入れる（＋${fmt(counter.type)}1枚）</button>`;
@@ -1072,9 +1085,9 @@ function showPlayerInfo(i){
 }
 function showHistory(){openModal('📝 プレイ履歴',`<p>最近の出来事を表示しています。</p><div class="log">${state.log.map(x=>`<div>• ${escapeText(x)}</div>`).join('')}</div>`)}
 function showRules(){openModal('📖 遊び方',`<p><b>目標：</b>先に10勝利点を取った人の勝ち。開拓地1点・都市2点・最長交易路2点・最大騎士力2点・発展カードの勝利点。</p><p><b>初期配置：</b>全員がサイコロ2個を振り、合計の大きい順に配置します（同点なら振り直し）。開拓地→隣接する道を1本。2周目は逆順（4位→1位）で置き、2つ目の開拓地の周囲から最初の資源を獲得します。通常の手番は1位→4位の順です。</p><p><b>毎ターン：</b>サイコロを振り、対応する数字の土地から資源獲得。盗賊がいる土地は生産停止。7が出たら手札8枚以上の人は半分を捨て、盗賊を移動します。</p><p><b>建設コスト：</b><br>🛤️ 道：${buildCostText('road')}<br>🏠 開拓地：${buildCostText('settlement')}<br>🏰 都市：${buildCostText('city')}<br>🃏 発展カード：${buildCostText('dev')}</p><p><b>道の建設：</b>最初の道は今置いた開拓地の隣。ゲーム開始後の道は<b>自分の開拓地・都市、または自分の既存の道</b>に接している場所にのみ建設できます。相手の建物を通過できませんが、分断された自分の道の端から延長することは可能です。</p><p><b>最長交易路：</b>自分の道が<b>連続5本以上</b>で、最長（同率なら保持者が優先）なら<b>＋2点</b>。分岐を合計して数えることはできず、相手の建物で分断された部分は別に数えます。同率の場合は既存の称号保持者が維持します。</p><p><b>開拓地：</b>自分の道と接続し、他の開拓地・都市から1辺以上離した交点にのみ建設できます。</p><p><b>交易：</b>銀行は通常4:1、港を利用できれば3:1または2:1。CPUに複数種類・複数枚の交換を提案でき、断られた場合は逆提案もあります。CPUの強さは上部の「🤖」ボタンで切り替えられます。騎士などの発展カードはサイコロ前にも使用できます。発展カードは購入したターンに使用不可。騎士3枚以上でも最大騎士力のボーナスを狙えます。</p><p class="sub">オリジナルの簡易デジタル版です。港のマークから伸びる2本の線の先、丸で囲まれた2地点のどちらかに<b>自分の開拓地・都市</b>を建てると使えます。港マークをタップすると金色の①②で建設地点が強調されます。港を使うためにも通常の開拓地建設ルールが必要です。一部の交渉・資源市場のルールはデジタル版向けに簡略化しています。</p>`)}
-function winModal(i){const rows=state.players.map((p,j)=>`${NAMES[j]}：<b>${score(j)}点</b>（開拓地${p.settlements}点・都市${p.cities*2}点・勝利点カード${p.vpCards}点・最長交易路${state.longest===j?2:0}点・最大騎士力${state.army===j?2:0}点）`).join('<br>');
+function winModal(i){const rows=activePlayers().map((p,j)=>`${NAMES[j]}：<b>${score(j)}点</b>（開拓地${p.settlements}点・都市${p.cities*2}点・勝利点カード${p.vpCards}点・最長交易路${state.longest===j?2:0}点・最大騎士力${state.army===j?2:0}点）`).join('<br>');
  if(i===0){sound('win');confetti()}
- openModal(i===0?'🎉 あなたの勝利！':'🏁 '+NAMES[i]+' の勝利',`<div class="victory-lead">${i===0?'🏝️ 島の開拓王になりました！':'今回は '+NAMES[i]+' が勝利！'}</div><p style="text-align:center">${state.round}ラウンドで決着 · ${score(i)}点獲得</p><div class="log">${rows}</div><button class="sheetbtn" id="again">もう一度遊ぶ</button>`,false);$('again').onclick=newGame;
+ openModal(i===0?'🎉 あなたの勝利！':'🏁 '+NAMES[i]+' の勝利',`<div class="victory-lead">${i===0?'🏝️ 島の開拓王になりました！':'今回は '+NAMES[i]+' が勝利！'}</div><p style="text-align:center">${state.round}ラウンドで決着 · ${score(i)}点獲得</p><div class="log">${rows}</div><button class="sheetbtn" id="again">もう一度遊ぶ</button>`,false);$('again').onclick=()=>newGame(state.difficulty,countPlayers());
 }
 function chooseRobberTile(i){let opts=tiles.filter(t=>t.id!==state.robber).map(t=>({id:t.id,score: t.vs.reduce((n,v)=>n+(state.ownerV[v]>=0&&state.ownerV[v]!==i?state.levelV[v]*(ODDS[t.num]||2):0),0)}));opts.sort((a,b)=>b.score-a.score);return opts[0]?.id??((state.robber+1)%19)}
 function cpuProduction(i){let output=Array(5).fill(0);
@@ -1144,7 +1157,7 @@ function cpuBestRoad(i){const arr=legalE(i);if(!arr.length)return;
   }
   state.ownerE[e]=-1;
   let gain=newLen-before;
-  const top=Math.max(...state.players.map((p,j)=>j===i?0:roadLength(j)));
+  const top=Math.max(...activePlayers().map((p,j)=>j===i?0:roadLength(j)));
   const race=before>=3||top>=4;
   return best+Math.max(0,gain)*(race?9:2)+(before<5&&newLen>=5?24:0)+Math.random()*(state.difficulty==='easy'?12:1.5);
  };
@@ -1172,7 +1185,7 @@ function cpuAction(i){let p=player(i),changed=false,diff=state.difficulty||'norm
  // Try one saved card before building; save subsequent actions at the usual turn checkpoint.
  if(!p.playedDev){
   let ci=p.dev.findIndex(c=>!c.used&&c.turn<state.round&&c.type==='freeRoad'&&legalE(i).length>0);
-  if(ci<0){let counts=R.map((_,k)=>state.players.reduce((sum,q,j)=>sum+(j===i?0:q.res[k]),0));if(Math.max(...counts)>=4)ci=p.dev.findIndex(c=>!c.used&&c.turn<state.round&&c.type==='monopoly')}
+  if(ci<0){let counts=R.map((_,k)=>activePlayers().reduce((sum,q,j)=>sum+(j===i?0:q.res[k]),0));if(Math.max(...counts)>=4)ci=p.dev.findIndex(c=>!c.used&&c.turn<state.round&&c.type==='monopoly')}
   if(ci<0&&cpuNeeds(i).some(k=>p.res[k]===0))ci=p.dev.findIndex(c=>!c.used&&c.turn<state.round&&c.type==='plenty');
   if(ci<0&&(p.usedKnights>=2||Math.random()<.52))ci=p.dev.findIndex(c=>!c.used&&c.turn<state.round&&c.type==='knight');
   if(ci>=0){playCard(i,ci);changed=true}
@@ -1181,7 +1194,7 @@ function cpuAction(i){let p=player(i),changed=false,diff=state.difficulty||'norm
   if(state.winner>=0)break;
   const goal=cpuGoal(i),v=cpuBestSettlement(i),c=cpuBestCity(i),e=cpuBestRoad(i);
   const canV=v!==undefined&&canAfford(i,COST.settlement),canC=c!==undefined&&p.cities<4&&canAfford(i,COST.city),canE=e!==undefined&&p.roads<15&&canAfford(i,COST.road);
-  const latest=roadLength(i),rivals=Math.max(...state.players.map((q,j)=>j===i?0:roadLength(j)));
+  const latest=roadLength(i),rivals=Math.max(...activePlayers().map((q,j)=>j===i?0:roadLength(j)));
   const roadRace=(latest>=3&&latest<=Math.max(5,rivals+1))||rivals>=4;
   if(canV&&(goal.kind==='settlement'||!canC)){placeSettlement(v,i);log(NAMES[i]+'：開拓地を増やした');changed=true;continue}
   if(canC&&(goal.kind==='city'||!canV)){placeCity(c,i);log(NAMES[i]+'：都市へ発展');changed=true;continue}
@@ -1221,7 +1234,7 @@ async function runCpuTurns(){
    }
    if(state.cpuStage==='ready-roll'){
     let dice=[1+rand(6),1+rand(6)],n=dice[0]+dice[1];state.dice=dice;sound('dice');log(NAMES[i]+'：サイコロ '+n);
-    if(n===7){reportSeven();for(let j=1;j<4;j++)discardAuto(j);state.cpuStage='await-discard';save();}
+    if(n===7){reportSeven();for(let j=1;j<countPlayers();j++)discardAuto(j);state.cpuStage='await-discard';save();}
     else{produce(n);state.cpuStage='rolled';save();}
    }
    if(state.cpuStage==='await-discard'){
@@ -1240,6 +1253,7 @@ async function runCpuTurns(){
   if(state.winner>=0){save();render()}
  }finally{cpuRunning=false;render();clearCpuNotice()}
 }
+$('roadPicker').addEventListener('click',e=>{const btn=e.target.closest('[data-road-pick]');if(btn)handleEdge(+btn.dataset.roadPick)});
 $('board').addEventListener('click',e=>{let node=e.target.closest('[data-vert],[data-edge],[data-tile],[data-port]');if(!node)return;if(node.hasAttribute('data-vert'))handleVertex(+node.dataset.vert);else if(node.hasAttribute('data-edge'))handleEdge(+node.dataset.edge);else if(node.hasAttribute('data-port'))showPort(+node.dataset.port);else if(node.hasAttribute('data-tile')){if(state.phase==='robber')doHumanRobber(+node.dataset.tile);else showTileInfo(+node.dataset.tile)}});
 $('players').addEventListener('click',e=>{let n=e.target.closest('[data-player]');if(n&&$('scrim').classList.contains('hidden'))showPlayerInfo(+n.dataset.player)});
 $('wallet').addEventListener('click',e=>{if(e.target.closest('.res')&&$('scrim').classList.contains('hidden'))showHandModal()});
@@ -1264,8 +1278,9 @@ $('settingsBtn').onclick=settingsModal;
   $('sheet').querySelectorAll('[data-level]').forEach(el=>el.onclick=()=>{state.difficulty=el.dataset.level;save();hideModal();render();showToast('🤖 難易度：'+el.querySelector('b').textContent)});
  };$('restartBtn').onclick=()=>{if(cpuRunning||rolling)return showToast('CPUの手番が終わってから新規ゲームを開始できます');openModal('新しいゲームを始める？','<p>現在の進行状況は消去されます。</p><div class="row"><button class="sheetbtn secondary" id="back">戻る</button><button class="sheetbtn" id="newSure">新規ゲーム</button></div>')};
  $('scrim').addEventListener('click',e=>{if(e.target===$('scrim')&&['📝 プレイ履歴','📖 遊び方','新しいゲームを始める？','🤝 資源の交易','🃏 発展カード','🤖 CPUの難易度','⚙️ 演出・CPU速度'].includes(modalType)||modalType.includes('の状況')||modalType.includes('の土地')||modalType.includes(' の')||modalType.includes('港'))hideModal()});
- $('sheet').addEventListener('click',e=>{if(e.target.closest('#installAppBtn'))installApp();if(e.target.id==='back')hideModal();if(e.target.id==='newSure'){try{localStorage.removeItem('hexIslandSaveV61')}catch(e){}newGame()}});
+ $('sheet').addEventListener('click',e=>{if(e.target.closest('#installAppBtn'))installApp();if(e.target.id==='back')hideModal();if(e.target.id==='newSure'){try{localStorage.removeItem('hexIslandSaveV61')}catch(e){}newGame(state.difficulty,countPlayers())}});
 if(location.search.includes('test=1'))window.__hexTest={getProduction:()=>state.lastProduction,showHandModal,showPlayerInfo,visibleDevCount,getCpuSpeed:()=>fxPrefs.cpuFast,getDevEffects:()=>fxPrefs.devEffects,dismissDevReveals,setDevEffects:v=>{fxPrefs.devEffects=v;storeFxPreferences()},showDevEffect,setCpuSpeed:v=>{fxPrefs.cpuFast=v;storeFxPreferences();render()},showCpuNotice,replayCpuEvents,rollForOrder,showOrderRoll,showOrderResult,finishSetup,advanceTurn,runCpuTurns,getState:()=>state,player,legalE,legalV,placeRoad,placeSettlement,roadLength,cpuAction,cpuGoal,cpuBestRoad,cpuTrade,cpuTradeUtility,tradeModal,showRules,save,newGame,checkWinner,produce,buildingFx,roadFx,sound,confetti,settingsModal,makePorts,ownedPorts,portCoords,showPort,renderBoard,renderWallet,renderActions,validSettlement,rateFor,getPorts:()=>ports,getVerts:()=>verts,getEdges:()=>edges};
+ const COUNT_PREF_KEY='hexIslandPlayerCount';let startPlayerCount=4;try{startPlayerCount=localStorage.getItem(COUNT_PREF_KEY)==='2'?2:4}catch(e){}const refreshStartCount=()=>document.querySelectorAll('[data-start-count]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.startCount===startPlayerCount)));document.querySelectorAll('[data-start-count]').forEach(b=>b.onclick=()=>{startPlayerCount=+b.dataset.startCount;try{localStorage.setItem(COUNT_PREF_KEY,String(startPlayerCount))}catch(e){}refreshStartCount()});refreshStartCount();
  const DIFF_PREF_KEY='hexIslandStartDifficulty';
  let startDifficulty='normal';
  try{let stored=localStorage.getItem(DIFF_PREF_KEY);if(['easy','normal','hard'].includes(stored))startDifficulty=stored}catch(e){}
@@ -1286,7 +1301,7 @@ function refreshHomeInfo(){
  if(menuHasSave&&state){
   const names=['初期配置','プレイ中','対戦結果'];
   const phase=state.winner>=0?names[2]:(state.phase==='order-roll'||state.phase==='order-result'||String(state.phase).startsWith('setup'))?names[0]:names[1];
-  info.textContent=`💾 セーブあり · ${phase} · ラウンド ${state.round||1} · ${({easy:'初級',normal:'標準',hard:'上級'}[state.difficulty]||'標準')}`;
+  info.textContent=`💾 セーブあり · ${phase} · ラウンド ${state.round||1} · ${countPlayers()}人戦 · ${({easy:'初級',normal:'標準',hard:'上級'}[state.difficulty]||'標準')}`;
  }else info.textContent='まだ保存された対戦はありません';
 }
 function openHome(){
@@ -1298,7 +1313,7 @@ $('homeBtn').onclick=openHome;
 $('startOptions').onclick=settingsModal;
 $('startRecords').onclick=recordsModal;
 $('startNew').onclick=()=>{
- const start=()=>{leaveHome();newGame(startDifficulty);menuHasSave=true};
+ const start=()=>{leaveHome();newGame(startDifficulty,startPlayerCount);menuHasSave=true};
  if(menuHasSave){
   openModal('新しいゲームを始める？','<p>保存中の対戦は上書きされます。今の続きからは遊べなくなります。</p><div class="row"><button class="sheetbtn secondary" id="cancelStartNew">キャンセル</button><button class="sheetbtn" id="confirmStartNew">最初から遊ぶ</button></div>',false);
   $('cancelStartNew').onclick=hideModal;
