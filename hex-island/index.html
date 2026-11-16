@@ -12,7 +12,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
-<title>六角島の開拓者 — Ver.9.0</title>
+<title>六角島の開拓者 — Ver.9.1</title>
 <style>
 :root{--ink:#203242;--ocean:#9ad3d1;--sand:#f6edda;--paper:#fffaf0;--accent:#0c867b;--gold:#f0b441;--muted:#667482;--red:#dc6858}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;overflow:hidden}body{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;background:#e7edec;color:var(--ink)}button,select{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.35;cursor:default}#app{height:100dvh;max-width:620px;margin:auto;display:flex;flex-direction:column;overflow:hidden;background:#e6f0eb;box-shadow:0 0 35px #182e2433}
@@ -273,14 +273,24 @@
 .road-picker.hidden{display:none}.road-picker-label{font-size:11px;font-weight:900;white-space:nowrap;color:#6d521f}
 .road-buttons{display:flex;overflow-x:auto;gap:6px;flex:1}.road-buttons button{flex:0 0 37px;height:37px;border-radius:11px;border:2px solid #ab7729;background:#fff;color:#654715;font-weight:900;font-size:17px;cursor:pointer}
 .road-choice{cursor:pointer}.road-choice circle{fill:#fff9e4;stroke:#ad731c;stroke-width:3}.road-choice text{font-family:system-ui,sans-serif;font-weight:900;font-size:17px;fill:#664317}
+/* Finger-friendly, numbered settlement and city targets. */
+.build-picker{position:absolute;z-index:4;left:8px;right:8px;top:6px;display:flex;align-items:center;gap:7px;background:#fff9e8f2;border:1.5px solid #dfbc6e;padding:6px 8px;border-radius:11px;box-shadow:0 2px 8px #20474d33}
+.build-picker.hidden{display:none}.build-picker-label{font-size:11px;font-weight:900;white-space:nowrap;color:#6d521f}
+.build-buttons{display:flex;overflow-x:auto;gap:6px;flex:1;scrollbar-width:thin;overscroll-behavior-x:contain}
+.build-buttons button{flex:0 0 44px;height:44px;border-radius:11px;border:2px solid #ab7729;background:#fff;color:#654715;font-weight:900;font-size:17px;cursor:pointer;touch-action:manipulation}
+.build-buttons button:focus-visible{outline:3px solid #0c877c;outline-offset:1px}
+.build-choice{cursor:pointer}.build-choice circle:first-child{fill:#fff9e4;stroke:#ac711b;stroke-width:3.2;filter:drop-shadow(0 1px 2px #1c414a99)}
+.build-choice text{font-family:system-ui,sans-serif;font-weight:950;font-size:16px;fill:#624010;pointer-events:none;text-anchor:middle}
+.build-choice:focus-visible circle:first-child{stroke:#08786e;stroke-width:5}
+@media(max-width:360px){.build-picker-label{font-size:10px}.build-picker{gap:5px;padding:5px}.build-buttons button{flex-basis:42px;height:42px}}
 .start-mode{margin:8px 0 10px;color:#f5eacb;width:100%}.start-mode .start-difficulty-options{grid-template-columns:repeat(2,minmax(0,1fr))}
 </style>
 </head>
 <body><main id="app">
-<header class="top"><div class="top-identity"><div class="mark">⬡</div><div class="brand"><b>六角島の開拓者</b><small>HEX ISLAND · Ver.9.0</small></div><button id="homeBtn" aria-label="タイトル画面に戻る">⌂ ホーム</button></div><nav class="top-menu" aria-label="ゲームメニュー"><button id="levelBtn" aria-label="CPU難易度">🤖 標準</button><button id="settingsBtn" aria-label="演出とCPU速度の設定" title="音・アニメーション・CPU速度">⚙️ 設定</button><button id="rulesBtn">📖 ルール</button><button id="restartBtn">↻ 新規</button></nav></header>
+<header class="top"><div class="top-identity"><div class="mark">⬡</div><div class="brand"><b>六角島の開拓者</b><small>HEX ISLAND · Ver.9.1</small></div><button id="homeBtn" aria-label="タイトル画面に戻る">⌂ ホーム</button></div><nav class="top-menu" aria-label="ゲームメニュー"><button id="levelBtn" aria-label="CPU難易度">🤖 標準</button><button id="settingsBtn" aria-label="演出とCPU速度の設定" title="音・アニメーション・CPU速度">⚙️ 設定</button><button id="rulesBtn">📖 ルール</button><button id="restartBtn">↻ 新規</button></nav></header>
 <section class="players" id="players"></section>
 <div class="status"><div class="msg" id="message">島を準備しています…</div><button type="button" id="cpuSpeedBtn" class="speed-chip" title="CPU手番の速度を切り替える">▶ 通常</button><div class="dice" id="dice"></div></div><section id="production" class="production hidden" aria-label="前回のサイコロで獲得した資源" aria-live="polite"></section>
-<section class="boardzone"><div class="road-picker hidden" id="roadPicker" aria-label="道の建設先"></div><svg id="board" viewBox="-259 -239 518 478" aria-label="六角形のゲーム盤"></svg><svg id="fxLayer" viewBox="-259 -239 518 478" aria-hidden="true"></svg><div id="toast" class="toast hidden"></div><div id="cpuNotice" class="cpu-notice hidden" role="status" aria-live="polite"></div><button type="button" id="portHelpBtn" class="port-help">⚓ 港の建設位置</button><div class="port-guide hidden" id="portGuide"></div><div class="boardfooter">🛤️ 道は番号の丸または上の番号ボタンから選択 · ⚓ 港は線の先</div></section>
+<section class="boardzone"><div class="road-picker hidden" id="roadPicker" aria-label="道の建設先"></div><div class="build-picker hidden" id="buildPicker" aria-label="開拓地・都市の建設先"></div><svg id="board" viewBox="-259 -239 518 478" aria-label="六角形のゲーム盤"></svg><svg id="fxLayer" viewBox="-259 -239 518 478" aria-hidden="true"></svg><div id="toast" class="toast hidden"></div><div id="cpuNotice" class="cpu-notice hidden" role="status" aria-live="polite"></div><button type="button" id="portHelpBtn" class="port-help">⚓ 港の建設位置</button><div class="port-guide hidden" id="portGuide"></div><div class="boardfooter">🛤️🏠🏰 建設は盤面の番号か上のボタンから選択 · ⚓ 港は線の先</div></section>
 <section class="dock"><div class="hand-heading"><div class="hand-heading-title"><strong>🎴 自分の手札</strong><span id="handSummary" aria-live="polite">資源 0枚</span></div><button type="button" id="handDevBtn" class="dev-shortcut">🃏 発展 0枚 <span aria-hidden="true">›</span></button></div><div id="wallet" class="wallet" aria-label="あなたの資源カード。タップで手札の詳細を確認できます"></div><div class="hintline"><span id="hint">資源を集めて島を開拓しよう</span><button id="historyBtn">履歴を見る</button></div><div class="actions" id="actions"></div></section></main>
 <div class="start-screen hidden" id="startScreen" role="dialog" aria-modal="true" aria-label="スタート画面">
   <div class="start-content">
@@ -312,7 +322,7 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id), SVG='http://www.w3.org/2000/svg';
 const R=['木材','レンガ','羊毛','小麦','鉱石'], ICON=['🌲','🧱','🐑','🌾','⛰️'], COLORS=['#396c50','#b96951','#99b877','#e4c56d','#8a9ba0','#e9d8ae'], RC=['#4b895c','#ba6c50','#87a05b','#c3a65a','#6b8290'];
-const VERSION='9.0';
+const VERSION='9.1';
 const PLAYER_COLORS=['#e6a72e','#db657a','#597edf','#269a59'], NAMES=['あなた','CPU 1','CPU 2','CPU 3'];
 const CPU_TEXT_COLORS=['#8b6212','#b43b5b','#355fcb','#167342'];
 const COST={road:[1,1,0,0,0],settlement:[1,1,1,1,0],city:[0,0,0,2,3],dev:[0,0,1,1,1]};
@@ -647,8 +657,8 @@ function phaseText(){if(state.winner>=0)return (state.winner===0?'🎉 勝利！
  if(rolling)return '🎲 サイコロを振っています…';
  if(state.phase==='roll')return `ラウンド ${state.round}：サイコロを振ろう`;
  if(state.mode==='road'||state.mode==='road-free')return '🛤️ 自分の建物・道につながる光る辺を選択';
- if(state.mode==='settlement')return '🏠 光る交点をタップして開拓地を建設';
- if(state.mode==='city')return '🏰 自分の開拓地をタップして都市に';
+ if(state.mode==='settlement')return '🏠 番号を選んで開拓地を建設';
+ if(state.mode==='city')return '🏰 番号を選んで開拓地を都市に発展';
  return `ラウンド ${state.round}：建設・交易をして次の手番へ`}
 function render(){if(!state)return;renderPlayers();renderWallet();renderBoard();renderProduction();renderCpuNotice();renderActions();$('cpuSpeedBtn').textContent=fxPrefs.cpuFast?'⏩ 高速':'▶ 通常';$('cpuSpeedBtn').setAttribute('aria-pressed',String(fxPrefs.cpuFast));$('message').textContent=phaseText();$('levelBtn').textContent='🤖 '+({easy:'初級',normal:'標準',hard:'上級'}[state.difficulty]||'標準');$('dice').innerHTML=state.dice.map(v=>`<span class="die">${['⚀','⚁','⚂','⚃','⚄','⚅'][v-1]}</span>`).join('');}
 function visibleDevCount(i){return player(i).dev.filter(c=>!c.used).length}
@@ -717,7 +727,23 @@ function renderPortGuide(){
 }
 function roadCandidates(){if(!state||state.current!==0||cpuRunning||state.winner>=0)return [];if(state.phase==='setup-road')return legalE(0,true,state.lastV);if((state.phase==='action'||state.phase==='roll')&&['road','road-free'].includes(state.mode))return legalE(0);return []}
 function updateRoadPicker(){const el=$('roadPicker');if(!el)return;const available=roadCandidates();if(!available.length){el.classList.add('hidden');el.innerHTML='';return}el.classList.remove('hidden');el.innerHTML=`<span class="road-picker-label">🛤️ 道の位置</span><div class="road-buttons">${available.map((id,n)=>`<button type="button" data-road-pick="${id}" aria-label="道の候補${n+1}を選ぶ">${n+1}</button>`).join('')}</div>`}
-function renderBoard(){updateRoadPicker();
+function buildingCandidates(){
+ if(!state||state.current!==0||cpuRunning||state.winner>=0)return [];
+ if(state.phase==='setup-settlement')return legalV(0,true);
+ if(state.phase!=='action')return [];
+ if(state.mode==='settlement'&&canAfford(0,COST.settlement))return legalV(0);
+ if(state.mode==='city'&&canAfford(0,COST.city)&&player(0).cities<4)return verts.filter(v=>state.ownerV[v.id]===0&&state.levelV[v.id]===1).map(v=>v.id);
+ return [];
+}
+function updateBuildPicker(){
+ const el=$('buildPicker'),available=buildingCandidates();
+ const active=state.phase==='action'&&['settlement','city'].includes(state.mode)&&available.length>0;
+ if(!active){el.classList.add('hidden');el.innerHTML='';return}
+ const label=state.mode==='city'?'🏰 都市の位置':'🏠 開拓地の位置';
+ el.classList.remove('hidden');
+ el.innerHTML=`<span class="build-picker-label">${label}</span><div class="build-buttons">${available.map((id,n)=>`<button type="button" data-build-pick="${id}" aria-label="${label}の候補${n+1}を選ぶ">${n+1}</button>`).join('')}</div>`;
+}
+function renderBoard(){updateRoadPicker();updateBuildPicker();
  let s=`<defs>
  <linearGradient id="hexSea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f5ebbb"/><stop offset="1" stop-color="#d2e3b2"/></linearGradient>
  <linearGradient id="tileLit" x1="0" y1="0" x2=".85" y2="1"><stop stop-color="#ffffff" stop-opacity=".25"/><stop offset=".85" stop-color="#fff" stop-opacity="0"/></linearGradient>
@@ -756,7 +782,8 @@ function renderBoard(){updateRoadPicker();
   if(eligibleE.includes(e.id)){const number=eligibleE.indexOf(e.id)+1,mx=(a.x+b.x)/2,my=(a.y+b.y)/2;s+=`<line class="hit" data-edge="${e.id}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="transparent" stroke-width="29" stroke-linecap="round"/><g class="road-choice" data-edge="${e.id}" role="button" aria-label="道の候補 ${number} 番" tabindex="0"><circle cx="${mx}" cy="${my}" r="16"/><text x="${mx}" y="${my+5}" text-anchor="middle" pointer-events="none">${number}</text></g>`;}
  });
  const harborVerts=new Map();ports.forEach(p=>{const e=edges[p.edge];for(const v of [e.a,e.b])harborVerts.set(v,true)});
- let eligibleV=[];if(state.current===0){if(state.phase==='setup-settlement')eligibleV=legalV(0,true);else if(state.phase==='action'&&state.mode==='settlement')eligibleV=legalV(0);else if(state.phase==='action'&&state.mode==='city')eligibleV=verts.filter(v=>state.ownerV[v.id]===0&&state.levelV[v.id]===1).map(v=>v.id)}
+ const eligibleV=buildingCandidates();
+ const numberedV=state.phase==='action'&&['settlement','city'].includes(state.mode);
  verts.forEach(v=>{
   let owner=state.ownerV[v.id],level=state.levelV[v.id],harbor=harborVerts.has(v.id);
   if(harbor){let ours=owner===0;
@@ -767,8 +794,14 @@ function renderBoard(){updateRoadPicker();
    if(level===1)s+=`<g transform="translate(${v.x} ${v.y})"><path d="M-10 1 L0 -9 L10 1 V11 H-10 Z" fill="${color}" stroke="#253847" stroke-width="2.3"/><path d="M-4 11V4H3V11" fill="#ffffff99"/></g>`;
    else s+=`<g transform="translate(${v.x} ${v.y})"><path d="M-12 -1 L-5 -8 L3 -8 L3 -2 L12 -2 L12 11 H-12Z" fill="${color}" stroke="#253847" stroke-width="2.3"/><rect x="-7" y="2" width="6" height="9" fill="#fff8cf"/><rect x="4" y="2" width="5" height="5" fill="#fff8cf"/></g>`;
   }
-  if(eligibleV.includes(v.id)){s+=`<circle class="hint" cx="${v.x}" cy="${v.y}" r="${harbor?11:7.5}" fill="${harbor?'#ffe38e':'#fffcde'}" stroke="${harbor?'#c78022':'#ecdfaf'}" stroke-width="${harbor?2.7:1.5}" opacity=".96"/>`;
-   s+=`<circle class="hit" data-vert="${v.id}" cx="${v.x}" cy="${v.y}" r="14" fill="transparent"/>`;
+  if(eligibleV.includes(v.id)){
+   if(numberedV){
+    const number=eligibleV.indexOf(v.id)+1;
+    s+=`<g class="build-choice" data-vert="${v.id}" role="button" tabindex="0" aria-label="${state.mode==='city'?'都市':'開拓地'}の候補 ${number} 番"><circle cx="${v.x}" cy="${v.y}" r="17"/><text x="${v.x}" y="${v.y+5.5}" font-size="${number>9?12:16}">${number}</text><circle data-vert="${v.id}" cx="${v.x}" cy="${v.y}" r="19" fill="transparent" stroke="none"/></g>`;
+   }else{
+    s+=`<circle class="hint" cx="${v.x}" cy="${v.y}" r="${harbor?11:9}" fill="${harbor?'#ffe38e':'#fffcde'}" stroke="${harbor?'#c78022':'#ecdfaf'}" stroke-width="${harbor?2.7:1.5}" opacity=".96"/>`;
+    s+=`<circle class="hit" data-vert="${v.id}" cx="${v.x}" cy="${v.y}" r="19" fill="transparent"/>`;
+   }
   }
  });
  // Bright selected endpoints are always drawn AFTER houses, roads, and availability markers.
@@ -1254,7 +1287,32 @@ async function runCpuTurns(){
  }finally{cpuRunning=false;render();clearCpuNotice()}
 }
 $('roadPicker').addEventListener('click',e=>{const btn=e.target.closest('[data-road-pick]');if(btn)handleEdge(+btn.dataset.roadPick)});
-$('board').addEventListener('click',e=>{let node=e.target.closest('[data-vert],[data-edge],[data-tile],[data-port]');if(!node)return;if(node.hasAttribute('data-vert'))handleVertex(+node.dataset.vert);else if(node.hasAttribute('data-edge'))handleEdge(+node.dataset.edge);else if(node.hasAttribute('data-port'))showPort(+node.dataset.port);else if(node.hasAttribute('data-tile')){if(state.phase==='robber')doHumanRobber(+node.dataset.tile);else showTileInfo(+node.dataset.tile)}});
+$('buildPicker').addEventListener('click',e=>{const btn=e.target.closest('[data-build-pick]');if(btn)handleVertex(+btn.dataset.buildPick)});
+// Convert taps to SVG coordinates and choose the nearest legal building spot.
+function nearestBuildVertex(e){
+ const available=buildingCandidates();if(!available.length)return null;
+ const svg=$('board'),matrix=svg.getScreenCTM();if(!matrix)return null;
+ const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;
+ const at=p.matrixTransform(matrix.inverse());let best=null,bestDist=Infinity;
+ for(const id of available){const v=verts[id],d=Math.hypot(v.x-at.x,v.y-at.y);if(d<bestDist){bestDist=d;best=id}}
+ return bestDist<=25?best:null;
+}
+$('board').addEventListener('click',e=>{
+ const node=e.target.closest('[data-vert],[data-edge],[data-tile],[data-port]');
+ if(node?.hasAttribute('data-vert'))return handleVertex(+node.dataset.vert);
+ if(state.current===0&&(state.phase==='setup-settlement'||state.phase==='action'&&['settlement','city'].includes(state.mode))){
+  const near=nearestBuildVertex(e);if(near!==null)return handleVertex(near);
+ }
+ if(!node)return;
+ if(node.hasAttribute('data-edge'))handleEdge(+node.dataset.edge);
+ else if(node.hasAttribute('data-port'))showPort(+node.dataset.port);
+ else if(node.hasAttribute('data-tile')){if(state.phase==='robber')doHumanRobber(+node.dataset.tile);else showTileInfo(+node.dataset.tile)}
+});
+$('board').addEventListener('keydown',e=>{
+ if(e.key!=='Enter'&&e.key!==' ')return;
+ const node=e.target.closest('[data-vert],[data-edge]');if(!node)return;
+ e.preventDefault();if(node.hasAttribute('data-vert'))handleVertex(+node.dataset.vert);else handleEdge(+node.dataset.edge);
+});
 $('players').addEventListener('click',e=>{let n=e.target.closest('[data-player]');if(n&&$('scrim').classList.contains('hidden'))showPlayerInfo(+n.dataset.player)});
 $('wallet').addEventListener('click',e=>{if(e.target.closest('.res')&&$('scrim').classList.contains('hidden'))showHandModal()});
 $('handDevBtn').onclick=cardsModal;
@@ -1279,7 +1337,7 @@ $('settingsBtn').onclick=settingsModal;
  };$('restartBtn').onclick=()=>{if(cpuRunning||rolling)return showToast('CPUの手番が終わってから新規ゲームを開始できます');openModal('新しいゲームを始める？','<p>現在の進行状況は消去されます。</p><div class="row"><button class="sheetbtn secondary" id="back">戻る</button><button class="sheetbtn" id="newSure">新規ゲーム</button></div>')};
  $('scrim').addEventListener('click',e=>{if(e.target===$('scrim')&&['📝 プレイ履歴','📖 遊び方','新しいゲームを始める？','🤝 資源の交易','🃏 発展カード','🤖 CPUの難易度','⚙️ 演出・CPU速度'].includes(modalType)||modalType.includes('の状況')||modalType.includes('の土地')||modalType.includes(' の')||modalType.includes('港'))hideModal()});
  $('sheet').addEventListener('click',e=>{if(e.target.closest('#installAppBtn'))installApp();if(e.target.id==='back')hideModal();if(e.target.id==='newSure'){try{localStorage.removeItem('hexIslandSaveV61')}catch(e){}newGame(state.difficulty,countPlayers())}});
-if(location.search.includes('test=1'))window.__hexTest={getProduction:()=>state.lastProduction,showHandModal,showPlayerInfo,visibleDevCount,getCpuSpeed:()=>fxPrefs.cpuFast,getDevEffects:()=>fxPrefs.devEffects,dismissDevReveals,setDevEffects:v=>{fxPrefs.devEffects=v;storeFxPreferences()},showDevEffect,setCpuSpeed:v=>{fxPrefs.cpuFast=v;storeFxPreferences();render()},showCpuNotice,replayCpuEvents,rollForOrder,showOrderRoll,showOrderResult,finishSetup,advanceTurn,runCpuTurns,getState:()=>state,player,legalE,legalV,placeRoad,placeSettlement,roadLength,cpuAction,cpuGoal,cpuBestRoad,cpuTrade,cpuTradeUtility,tradeModal,showRules,save,newGame,checkWinner,produce,buildingFx,roadFx,sound,confetti,settingsModal,makePorts,ownedPorts,portCoords,showPort,renderBoard,renderWallet,renderActions,validSettlement,rateFor,getPorts:()=>ports,getVerts:()=>verts,getEdges:()=>edges};
+if(location.search.includes('test=1'))window.__hexTest={getProduction:()=>state.lastProduction,showHandModal,showPlayerInfo,visibleDevCount,getCpuSpeed:()=>fxPrefs.cpuFast,getDevEffects:()=>fxPrefs.devEffects,dismissDevReveals,setDevEffects:v=>{fxPrefs.devEffects=v;storeFxPreferences()},showDevEffect,setCpuSpeed:v=>{fxPrefs.cpuFast=v;storeFxPreferences();render()},showCpuNotice,replayCpuEvents,rollForOrder,showOrderRoll,showOrderResult,finishSetup,advanceTurn,runCpuTurns,getState:()=>state,player,legalE,legalV,placeRoad,placeSettlement,roadLength,cpuAction,cpuGoal,cpuBestRoad,cpuTrade,cpuTradeUtility,tradeModal,showRules,save,newGame,checkWinner,produce,buildingFx,roadFx,sound,confetti,settingsModal,makePorts,ownedPorts,portCoords,showPort,renderBoard,renderWallet,renderActions,validSettlement,rateFor,getPorts:()=>ports,getVerts:()=>verts,getEdges:()=>edges,buildingCandidates,nearestBuildVertex};
  const COUNT_PREF_KEY='hexIslandPlayerCount';let startPlayerCount=4;try{startPlayerCount=localStorage.getItem(COUNT_PREF_KEY)==='2'?2:4}catch(e){}const refreshStartCount=()=>document.querySelectorAll('[data-start-count]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.startCount===startPlayerCount)));document.querySelectorAll('[data-start-count]').forEach(b=>b.onclick=()=>{startPlayerCount=+b.dataset.startCount;try{localStorage.setItem(COUNT_PREF_KEY,String(startPlayerCount))}catch(e){}refreshStartCount()});refreshStartCount();
  const DIFF_PREF_KEY='hexIslandStartDifficulty';
  let startDifficulty='normal';
